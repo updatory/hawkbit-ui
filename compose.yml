@@ -1,0 +1,61 @@
+#
+# Copyright (c) 2023 c89.tech
+#
+version: '3'
+
+services:
+  rabbitmq:
+    image: "rabbitmq:3-management-alpine"
+    restart: always
+
+  mariadb:
+    image: "mariadb:11"
+    environment:
+      MARIADB_DATABASE: "updatory"
+      MARIADB_ROOT_PASSWORD: "passw0rd"
+    restart: always
+    healthcheck:
+      test: [ "CMD", "mariadb-admin", "ping", "--password=passw0rd", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10
+
+  hawkbit:
+    image: "hawkbit/hawkbit-update-server:latest-mysql"
+    environment:
+      - 'SPRING_DATASOURCE_URL=jdbc:mariadb://mariadb:3306/updatory'
+      - 'SPRING_DATASOURCE_USERNAME=root'
+      - 'SPRING_DATASOURCE_PASSWORD=passw0rd'
+      - 'SPRING_RABBITMQ_HOST=rabbitmq'
+      - 'SPRING_RABBITMQ_USERNAME=guest'
+      - 'SPRING_RABBITMQ_PASSWORD=guest'
+    volumes:
+      - artifactrepo:/artifactrepo
+    restart: always
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+
+  ui:
+    image: node:alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: npm run dev -- --host
+
+  proxy:
+    image: "nginx:alpine"
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      hawkbit:
+        condition: service_started
+      ui:
+        condition: service_started
+
+volumes:
+  artifactrepo:
+    driver: local
