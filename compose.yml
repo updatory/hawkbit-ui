@@ -38,11 +38,11 @@ services:
         condition: service_started
 
   ui:
-    image: node:alpine
+    image: "node:alpine"
     working_dir: /app
     volumes:
       - .:/app
-    command: npm run dev -- --host
+    command: npm run docker
 
   proxy:
     image: "nginx:alpine"
