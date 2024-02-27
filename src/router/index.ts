@@ -1,7 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import { isAuthenticated } from '@/services/auth'
-import LoginView from '@/views/LoginView.vue'
+import { type IStaticMethods } from "preline/preline";
+
+declare global {
+  interface Window {
+    HSStaticMethods: IStaticMethods;
+  }
+}
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -10,21 +15,17 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView
-    },
-    {
-      path: '/login',
-      name: 'Login',
-      component: LoginView
     }
   ]
 })
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-router.beforeEach((to, _) => {
-  if (!isAuthenticated() && to.name !== 'Login'
-  ) {
-    return { name: 'Login' }
+router.afterEach((to, from, failure) => {
+  if (!failure) {
+    setTimeout(() => {
+      window.HSStaticMethods.autoInit();
+    }, 100)
   }
-})
+});
 
 export default router
