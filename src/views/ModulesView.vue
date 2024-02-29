@@ -1,10 +1,10 @@
 <template>
-  <header>
-    <h1 class="block text-2xl font-bold text-gray-800 sm:text-3xl dark:text-white">
-      Modules
-    </h1>
-    <hr/>
-  </header>
+  <PageHeader />
+  <div class="w-full pt-10 px-4 sm:px-6 md:px-8 lg:ps-72">
+    <h1>Modules</h1>
+  </div>
 </template>
+
 <script setup lang="ts">
+import PageHeader from '@/components/PageHeader.vue'
 </script>

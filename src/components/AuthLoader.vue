@@ -1,17 +1,3 @@
-<style>
-@tailwind components;
-
-@layer components {
-  #sapp {
-    @apply w-full max-w-md mx-auto p-6;
-  }
-
-  bodys {
-    @apply dark:bg-slate-900 bg-gray-100 flex h-full items-center py-16;
-  }
-}
-</style>
-
 <script setup lang="ts">
 function reload() {
   window.location.reload()
