@@ -8,36 +8,31 @@
 
     <nav class="hs-accordion-group p-6 w-full flex flex-col flex-wrap" data-hs-accordion-always-open>
       <ul class="space-y-1.5">
-        <li>
-          <router-link to="/rollouts" class="bg-gray-100 dark:bg-gray-900 flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600">
-            <RolloutIcon class="w-6 h-6" />
-            Rollouts
-          </router-link>
-        </li>
-        <li>
-          <router-link to="/targets" class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600">
-            <TargetIcon class="w-6 h-6" />
-            Targets
-          </router-link>
-        </li>
-        <li>
-          <router-link to="/targets" class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600">
-            <ModuleIcon class="w-6 h-6" />
-            Software Modules
-          </router-link>
-        </li>
-        <li>
-          <router-link to="/targets" class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600">
-            <DistributionIcon class="w-6 h-6" />
-            Distribution Sets
-          </router-link>
-        </li>
-        <li>
-          <router-link to="/targets" class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600">
-            <ConfigurationIcon class="w-6 h-6" />
-            Configuration
-          </router-link>
-        </li>
+        <SidebarLink label="Rollouts" href="/rollouts">
+          <template #icon>
+            <RolloutIcon />
+          </template>
+        </SidebarLink>
+        <SidebarLink label="Targets" href="/targets">
+          <template #icon>
+            <TargetIcon />
+          </template>
+        </SidebarLink>
+        <SidebarLink label="Software Modules" href="/modules">
+          <template #icon>
+            <ModuleIcon />
+          </template>
+        </SidebarLink>
+        <SidebarLink label="Distribution Sets" href="/distributions">
+          <template #icon>
+            <DistributionIcon />
+          </template>
+        </SidebarLink>
+        <SidebarLink label="Configuration" href="/configuration">
+          <template #icon>
+            <ConfigurationIcon />
+          </template>
+        </SidebarLink>
       </ul>
     </nav>
   </div>
@@ -48,4 +43,5 @@ import ModuleIcon from '@/icons/ModuleIcon.vue'
 import TargetIcon from '@/icons/TargetIcon.vue'
 import RolloutIcon from '@/icons/RolloutIcon.vue'
 import ConfigurationIcon from '@/icons/ConfigurationIcon.vue'
+import SidebarLink from '@/components/SidebarLink.vue'
 </script>
