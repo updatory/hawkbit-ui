@@ -6,7 +6,7 @@
 <template>
   <li>
     <router-link :to="props.href" class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600">
-      <div class="w-6 h-6">
+      <div class="flex-shrink-0 size-5">
         <slot name="icon"></slot>
       </div>
       {{ props.label }}
