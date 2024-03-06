@@ -3,7 +3,7 @@ import { RouterView } from 'vue-router'
 import { authenticate, type UserInfo } from '@/services/auth'
 import { type Ref, ref, type UnwrapRef } from 'vue'
 import AuthLoader from '@/components/AuthLoader.vue'
-import SidebarComponent from '@/components/SidebarComponent.vue'
+import SideBar from '@/components/SideBar.vue'
 
 const userInfo: Ref<UnwrapRef<null | UserInfo>> = ref(null)
 
@@ -15,7 +15,7 @@ authenticate().then((user) => {
 <template>
   <AuthLoader v-if="!userInfo" />
   <template v-if="userInfo">
-    <SidebarComponent />
+    <SideBar />
     <div v-if="userInfo" class="w-full">
       <RouterView />
     </div>

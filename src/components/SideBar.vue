@@ -6,36 +6,36 @@
 
     <nav class="hs-accordion-group p-6 w-full flex flex-col flex-wrap" data-hs-accordion-always-open>
       <ul class="space-y-1.5">
-        <SidebarLink label="Home" href="/">
+        <SideBarLink label="Home" href="/">
           <template #icon>
             <HomeIcon />
           </template>
-        </SidebarLink>
-        <SidebarLink label="Rollouts" href="/rollouts">
+        </SideBarLink>
+        <SideBarLink label="Rollouts" href="/rollouts">
           <template #icon>
             <RolloutIcon />
           </template>
-        </SidebarLink>
-        <SidebarLink label="Targets" href="/targets">
+        </SideBarLink>
+        <SideBarLink label="Targets" href="/targets">
           <template #icon>
             <TargetIcon />
           </template>
-        </SidebarLink>
-        <SidebarLink label="Software Modules" href="/modules">
+        </SideBarLink>
+        <SideBarLink label="Software Modules" href="/modules">
           <template #icon>
             <ModuleIcon />
           </template>
-        </SidebarLink>
-        <SidebarLink label="Distribution Sets" href="/distributions">
+        </SideBarLink>
+        <SideBarLink label="Distribution Sets" href="/distributions">
           <template #icon>
             <DistributionIcon />
           </template>
-        </SidebarLink>
-        <SidebarLink label="Settings" href="/settings">
+        </SideBarLink>
+        <SideBarLink label="Settings" href="/settings">
           <template #icon>
             <SettingsIcon />
           </template>
-        </SidebarLink>
+        </SideBarLink>
       </ul>
     </nav>
   </div>
@@ -47,6 +47,6 @@ import ModuleIcon from '@/icons/ModuleIcon.vue'
 import TargetIcon from '@/icons/TargetIcon.vue'
 import RolloutIcon from '@/icons/RolloutIcon.vue'
 import SettingsIcon from '@/icons/SettingsIcon.vue'
-import SidebarLink from '@/components/SidebarLink.vue'
+import SideBarLink from '@/components/SideBarLink.vue'
 import HomeIcon from '@/icons/HomeIcon.vue'
 </script>
