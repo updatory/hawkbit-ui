@@ -7,24 +7,20 @@
         <label for="hs-table-checkbox-all" class="sr-only">Checkbox</label>
       </div>
     </th>
-    <th scope="col" class="sticky top-0 bg-gray-50 dark:bg-gray-700 px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase align-baseline">
-      Name
-    </th>
-    <th scope="col" class="sticky top-0 bg-gray-50 dark:bg-gray-700 px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase align-baseline">
-      Version
-    </th>
-    <th scope="col" class="sticky top-0 bg-gray-50 dark:bg-gray-700 px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase align-baseline">
-      Type
-    </th>
-    <th scope="col" class="sticky top-0 bg-gray-50 dark:bg-gray-700 px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase align-baseline">
-      Description
-    </th>
-    <th scope="col" class="sticky top-0 bg-gray-50 dark:bg-gray-700 pe-10 px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase align-baseline">
-      Created At
-    </th>
+
+    <template v-for="field in schema.fields" :key="field.id">
+      <th scope="col" class="sticky top-0 bg-gray-50 dark:bg-gray-700 px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase align-baseline">
+        {{ field.description }}
+      </th>
+    </template>
   </tr>
   </thead>
 </template>
 <script setup lang="ts">
-import DataTableRow from '@/components/DataTableRow.vue'
+import type { PropType } from 'vue'
+import type DataTableSchema from '@/models/DataTableSchema'
+
+const props = defineProps({
+  schema: { type: Object as PropType<DataTableSchema>, required: true }
+});
 </script>
