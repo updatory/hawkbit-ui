@@ -8,19 +8,32 @@
       </div>
     </th>
 
-    <template v-for="field in schema.fields" :key="field.id">
-      <th scope="col" class="sticky top-0 bg-gray-50 dark:bg-gray-700 px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase align-baseline">
-        {{ field.description }}
+    <template v-for="cell in cells" :key="cell.id">
+      <th :class="{'pe-10': cell.last}" class="sticky top-0 bg-gray-50 dark:bg-gray-700 px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase align-baseline" scope="col" >
+        {{ cell.value }}
       </th>
     </template>
   </tr>
   </thead>
 </template>
 <script setup lang="ts">
-import type { PropType } from 'vue'
+import { computed, type PropType } from 'vue'
 import type DataTableSchema from '@/models/DataTableSchema'
+import type { DataTableCell } from '@/models/DataTableCell'
+import DataTableFieldType from '@/models/DataTableFieldType'
 
 const props = defineProps({
   schema: { type: Object as PropType<DataTableSchema>, required: true }
+});
+
+const cells = computed(() => {
+  return props.schema.fields.map((field, index) => {
+    return {
+      id: field.name,
+      value: field.title,
+      type: DataTableFieldType.Text,
+      last: index === props.schema.fields.length - 1
+    } as DataTableCell;
+  })
 });
 </script>
