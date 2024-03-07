@@ -2,7 +2,7 @@
   <div class="w-full lg:ps-64">
     <PageHeader title="Targets">
       <template #actions>
-        <PrimaryButton label="New module">
+        <PrimaryButton label="New target">
           <template #icon>
             <PlusIcon />
           </template>

@@ -2,7 +2,7 @@
   <div class="w-full lg:ps-64">
     <PageHeader title="Modules">
       <template #actions>
-        <PrimaryButton label="New module">
+        <PrimaryButton label="New module" @click.stop="onNewModule">
           <template #icon>
             <PlusIcon />
           </template>
@@ -19,6 +19,7 @@ import DataTable from '@/components/DataTable.vue'
 import PrimaryButton from '@/components/PrimaryButton.vue'
 import PlusIcon from '@/icons/PlusIcon.vue'
 import DataTableFieldType from '@/models/DataTableFieldType'
+import { useRouter } from 'vue-router'
 
 const schema = {
   fields: [
@@ -33,4 +34,10 @@ const schema = {
 const records = [
   {id: '1', values: ['Debian', '12.4 (bookworm)', 'Operating System', 'linux/arm/v5', '2024-03-01 13:23:45']},
 ];
+
+const router = useRouter();
+
+const onNewModule = () => {
+  router.push('/modules/new');
+}
 </script>

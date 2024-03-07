@@ -27,11 +27,6 @@
               <ModuleIcon />
             </template>
           </SideBarLink>
-          <SideBarLink label="Artifacts" href="/artifacts">
-            <template #icon>
-              <ArtifactIcon />
-            </template>
-          </SideBarLink>
         </ul>
       </div>
 
@@ -53,5 +48,4 @@ import TargetIcon from '@/icons/TargetIcon.vue'
 import RolloutIcon from '@/icons/RolloutIcon.vue'
 import UserIcon from '@/icons/UserIcon.vue'
 import SideBarLink from '@/components/SideBarLink.vue'
-import ArtifactIcon from '@/icons/ArtifactIcon.vue'
 </script>
