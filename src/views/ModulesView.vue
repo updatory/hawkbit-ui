@@ -9,7 +9,7 @@
         </PrimaryButton>
       </template>
     </PageHeader>
-    <DataTable :schema="schema" :records="records" />
+    <DataTable :schema="schema" :records="records" :handleRecordClicked="handleRecordClicked"/>
   </div>
 </template>
 
@@ -63,5 +63,9 @@ const router = useRouter()
 
 const onNewModule = () => {
   router.push('/modules/new')
+}
+
+const handleRecordClicked = (recordId: string) => {
+  router.push(`/modules/${recordId}/edit`)
 }
 </script>

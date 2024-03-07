@@ -1,5 +1,5 @@
 <template>
-  <tr class="hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+  <tr class="hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" @click.stop="props.handleRecordClicked(props.record.id)">
     <td class="ps-10 pe-1 py-4 w-1 text-nowrap">
       <div class="flex items-center h-5">
         <input id="hs-table-checkbox-1" type="checkbox" class="border-gray-200 rounded text-blue-600 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800">
@@ -20,9 +20,12 @@ import { computed, type PropType } from 'vue'
 import type DataTableRecord from '@/models/DataTableRecord'
 import type { DataTableCell } from '@/models/DataTableCell'
 
+export type HandleRecordClicked = (recordId: string) => void;
+
 const props = defineProps({
   schema: { type: Object as PropType<DataTableSchema>, required: true },
-  record: { type: Object as PropType<DataTableRecord>, required: true }
+  record: { type: Object as PropType<DataTableRecord>, required: true },
+  handleRecordClicked: { type: Function as PropType<HandleRecordClicked>, required: true },
 });
 
 const cells = computed(() => {
