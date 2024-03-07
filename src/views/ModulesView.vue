@@ -20,6 +20,19 @@ import PrimaryButton from '@/components/PrimaryButton.vue'
 import PlusIcon from '@/icons/PlusIcon.vue'
 import DataTableFieldType from '@/models/DataTableFieldType'
 import { useRouter } from 'vue-router'
+import { computed, inject, onMounted, ref } from 'vue'
+import type ModuleService from '@/services/ModuleService'
+import type Module from '@/models/Module'
+
+const moduleService = inject('moduleService') as ModuleService
+
+const modules = ref<Module[]>([])
+
+onMounted(() => {
+  moduleService.getAll().then(data => {
+    modules.value = data
+  })
+})
 
 const schema = {
   fields: [
@@ -27,17 +40,28 @@ const schema = {
     { name: 'version', title: 'Version', type: DataTableFieldType.Text },
     { name: 'type', title: 'Type', type: DataTableFieldType.Text },
     { name: 'description', title: 'Description', type: DataTableFieldType.Text },
-    { name: 'createdAt', title: 'Created At', type: DataTableFieldType.Date },
-  ],
-};
+    { name: 'createdAt', title: 'Created At', type: DataTableFieldType.Date }
+  ]
+}
 
-const records = [
-  {id: '1', values: ['Debian', '12.4 (bookworm)', 'Operating System', 'linux/arm/v5', '2024-03-01 13:23:45']},
-];
+const records = computed(() => {
+  return modules.value.map((module) => {
+    return {
+      id: module.id,
+      values: [
+        module.name,
+        module.version,
+        module.type,
+        module.description,
+        module.createdAt
+      ]
+    }
+  })
+})
 
-const router = useRouter();
+const router = useRouter()
 
 const onNewModule = () => {
-  router.push('/modules/new');
+  router.push('/modules/new')
 }
 </script>

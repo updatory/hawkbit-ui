@@ -3,9 +3,12 @@ import './style.css'
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
+import ModuleService from '@/services/ModuleService'
 
-const app = createApp(App)
+const app = createApp(App);
 
-app.use(router)
+app.provide('moduleService', new ModuleService());
 
-app.mount('#app')
+app.use(router);
+
+app.mount('#app');
