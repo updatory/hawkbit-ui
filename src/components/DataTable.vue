@@ -4,9 +4,9 @@
       <div class="min-w-full inline-block align-middle">
         <div class="flex-grow">
           <table class="relative min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <DataTableHeader :schema="schema" />
+            <DataTableHeader :schema="props.schema" />
             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-              <DataTableRow v-for="record in records" :key="record.id" :schema="schema" :record="record" />
+              <DataTableRow v-for="record in props.records" :key="record.id" :schema="props.schema" :record="record" />
             </tbody>
           </table>
         </div>

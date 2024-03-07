@@ -4,7 +4,7 @@
       <div class="w-full">
         <div class="flex flex-row items-center justify-between gap-2">
           <div class="flex flex-row items-center justify-start gap-2">
-            <h3 class="text-2xl dark:text-white">{{ title }}</h3>
+            <h3 class="text-2xl dark:text-white">{{ props.title }}</h3>
           </div>
           <slot name="actions"></slot>
         </div>
