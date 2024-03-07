@@ -1,6 +1,6 @@
 <template>
-  <tr class="hover:bg-gray-100 dark:hover:bg-gray-700">
-    <td class="ps-10 py-4 w-1 text-nowrap">
+  <tr class="hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+    <td class="ps-10 pe-1 py-4 w-1 text-nowrap">
       <div class="flex items-center h-5">
         <input id="hs-table-checkbox-1" type="checkbox" class="border-gray-200 rounded text-blue-600 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800">
         <label for="hs-table-checkbox-1" class="sr-only">Checkbox</label>

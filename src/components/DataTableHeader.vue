@@ -1,7 +1,7 @@
 <template>
   <thead>
   <tr>
-    <th scope="col" class="sticky top-0 bg-gray-50 dark:bg-gray-700 py-3 ps-10 w-1 text-nowrap">
+    <th scope="col" class="sticky top-0 bg-gray-50 dark:bg-gray-700 py-3 ps-10 pe-1 w-1 text-nowrap">
       <div class="flex items-center h-5">
         <input id="hs-table-checkbox-all" type="checkbox" class="border-gray-200 rounded text-blue-600 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800">
         <label for="hs-table-checkbox-all" class="sr-only">Checkbox</label>
@@ -9,7 +9,7 @@
     </th>
 
     <template v-for="cell in cells" :key="cell.id">
-      <th :class="{'pe-10': cell.last}" class="sticky top-0 bg-gray-50 dark:bg-gray-700 px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase align-baseline" scope="col" >
+      <th :class="{'pe-10': cell.last}" class="sticky top-0 bg-gray-50 dark:bg-gray-700 px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase" scope="col" >
         {{ cell.value }}
       </th>
     </template>
