@@ -1,6 +1,6 @@
 <template>
   <div class="w-full lg:ps-64">
-    <PageHeader title="Software Modules">
+    <PageHeader title="Modules">
       <template #actions>
         <PrimaryButton label="New module">
           <template #icon>

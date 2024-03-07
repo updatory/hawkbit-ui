@@ -1,8 +1,8 @@
 <template>
   <div class="w-full lg:ps-64">
-    <PageHeader title="Rollouts">
+    <PageHeader title="Targets">
       <template #actions>
-        <PrimaryButton label="New rollout">
+        <PrimaryButton label="New module">
           <template #icon>
             <PlusIcon />
           </template>

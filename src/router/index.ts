@@ -1,15 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import RolloutsView from '@/views/RolloutsView.vue'
 import ModulesView from '@/views/ModulesView.vue'
-import HomeView from '@/views/HomeView.vue'
+import ArtifactsView from '@/views/ArtifactsView.vue'
+import TargetsView from '@/views/TargetsView.vue'
+import DistributionsView from '@/views/DistributionsView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: HomeView
+      redirect: {
+        name: 'rollouts'
+      }
     },
     {
       path: '/rollouts',
@@ -17,9 +20,24 @@ const router = createRouter({
       component: RolloutsView
     },
     {
+      path: '/distributions',
+      name: 'distributions',
+      component: DistributionsView
+    },
+    {
+      path: '/targets',
+      name: 'targets',
+      component: TargetsView
+    },
+    {
       path: '/modules',
       name: 'modules',
       component: ModulesView
+    },
+    {
+      path: '/artifacts',
+      name: 'artifacts',
+      component: ArtifactsView
     }
   ]
 })

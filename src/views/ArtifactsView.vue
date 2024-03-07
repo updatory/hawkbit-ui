@@ -1,24 +1,24 @@
 <template>
-  <div class="w-full lg:ps-64">
-    <PageHeader title="Rollouts">
-      <template #actions>
-        <PrimaryButton label="New rollout">
-          <template #icon>
-            <PlusIcon />
-          </template>
-        </PrimaryButton>
-      </template>
-    </PageHeader>
-    <DataTable :schema="schema" :records="records" />
-  </div>
+  <PageSkeleton title="Artifacts">
+    <template #actions>
+      <PrimaryButton label="New artifacts">
+        <template #icon>
+          <PlusIcon />
+        </template>
+      </PrimaryButton>
+    </template>
+    <template #content>
+      <DataTable :schema="schema" :records="records" />
+    </template>
+  </PageSkeleton>
 </template>
 
 <script setup lang="ts">
-import PageHeader from '@/components/PageHeader.vue'
 import DataTable from '@/components/DataTable.vue'
 import PrimaryButton from '@/components/PrimaryButton.vue'
 import PlusIcon from '@/icons/PlusIcon.vue'
 import DataTableFieldType from '@/models/DataTableFieldType'
+import PageSkeleton from '@/components/PageSkeleton.vue'
 
 const schema = {
   fields: [

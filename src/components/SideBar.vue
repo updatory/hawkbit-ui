@@ -12,7 +12,7 @@
               <RolloutIcon />
             </template>
           </SideBarLink>
-          <SideBarLink label="Distribution Sets" href="/distributions">
+          <SideBarLink label="Distributions" href="/distributions">
             <template #icon>
               <DistributionIcon />
             </template>
@@ -22,7 +22,7 @@
               <TargetIcon />
             </template>
           </SideBarLink>
-          <SideBarLink label="Software Modules" href="/modules">
+          <SideBarLink label="Modules" href="/modules">
             <template #icon>
               <ModuleIcon />
             </template>
