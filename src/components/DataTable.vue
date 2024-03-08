@@ -6,7 +6,10 @@
           <table class="relative min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <DataTableHeader :schema="props.schema" />
             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-              <DataTableRow v-for="record in props.records" :key="record.id" :schema="props.schema" :record="record" :handleRecordClicked="handleRecordClicked"/>
+              <DataTableRow v-for="record in props.records"
+                            :key="record.id"
+                            :schema="props.schema"
+                            :record="record"/>
             </tbody>
           </table>
         </div>
@@ -15,7 +18,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import DataTableRow, { type HandleRecordClicked } from '@/components/DataTableRow.vue'
+import DataTableRow from '@/components/DataTableRow.vue'
 import DataTableHeader from '@/components/DataTableHeader.vue'
 import type DataTableSchema from '@/models/DataTableSchema'
 import type { PropType } from 'vue'
@@ -24,6 +27,5 @@ import type DataTableRecord from '@/models/DataTableRecord'
 const props = defineProps({
   schema: { type: Object as PropType<DataTableSchema>, required: true },
   records: { type: Array as PropType<DataTableRecord[]>, required: true },
-  handleRecordClicked: { type: Function as PropType<HandleRecordClicked>, required: true },
 });
 </script>

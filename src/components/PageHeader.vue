@@ -4,6 +4,11 @@
       <div class="w-full">
         <div class="flex flex-row items-center justify-between gap-2">
           <div class="flex flex-row items-center justify-start gap-2">
+            <IconButton v-if="props.backRouteName" @click.stop="onBack">
+              <template #icon>
+                <BackIcon />
+              </template>
+            </IconButton>
             <h3 class="text-2xl dark:text-white">{{ props.title }}</h3>
           </div>
           <slot name="actions"></slot>
@@ -14,7 +19,20 @@
 </template>
 
 <script setup lang="ts">
+import IconButton from '@/components/IconButton.vue'
+import BackIcon from '@/icons/BackIcon.vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
 const props = defineProps({
   title: { type: String, required: true },
+  backRouteName: { type: String, required: false },
 })
+
+const onBack = () => {
+  if (props.backRouteName) {
+    router.push({ name: props.backRouteName })
+  }
+}
 </script>

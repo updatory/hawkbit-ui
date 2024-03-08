@@ -33,10 +33,16 @@ const router = createRouter({
     {
       path: '/modules/new',
       component: NewModuleView,
+      props: {
+        backRouteName: 'modules'
+      }
     },
     {
       path: '/modules/:id/edit',
       component: EditModuleView,
+      props: {
+        backRouteName: 'modules'
+      }
     },
     {
       path: '/modules',

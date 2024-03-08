@@ -2,14 +2,14 @@
   <div class="w-full lg:ps-64">
     <PageHeader title="Modules">
       <template #actions>
-        <PrimaryButton label="New module" @click.stop="onNewModule">
+        <PrimaryButton label="New module" @click.stop="onNewModuleClicked">
           <template #icon>
             <PlusIcon />
           </template>
         </PrimaryButton>
       </template>
     </PageHeader>
-    <DataTable :schema="schema" :records="records" :handleRecordClicked="handleRecordClicked"/>
+    <DataTable :schema="schema" :records="records" />
   </div>
 </template>
 
@@ -20,18 +20,28 @@ import PrimaryButton from '@/components/PrimaryButton.vue'
 import PlusIcon from '@/icons/PlusIcon.vue'
 import DataTableFieldType from '@/models/DataTableFieldType'
 import { useRouter } from 'vue-router'
-import { computed, inject, onMounted, ref } from 'vue'
+import { computed, inject, onMounted, onUnmounted, ref } from 'vue'
 import type ModuleService from '@/services/ModuleService'
 import type Module from '@/models/Module'
+import useEmitter from '@/hooks/useEmitter'
+import type DataTableRecordClicked from '@/events/DataTableRecordClicked'
+
+const emitter = useEmitter();
 
 const moduleService = inject('moduleService') as ModuleService
 
 const modules = ref<Module[]>([])
 
 onMounted(() => {
+  emitter.on('dataTableRecordClicked', onDataTableRecordClicked);
+
   moduleService.getAll().then(data => {
     modules.value = data
   })
+})
+
+onUnmounted(() => {
+  emitter.off('dataTableRecordClicked', onDataTableRecordClicked);
 })
 
 const schema = {
@@ -61,11 +71,11 @@ const records = computed(() => {
 
 const router = useRouter()
 
-const onNewModule = () => {
+const onNewModuleClicked = () => {
   router.push('/modules/new')
 }
 
-const handleRecordClicked = (recordId: string) => {
-  router.push(`/modules/${recordId}/edit`)
+const onDataTableRecordClicked = (event: DataTableRecordClicked) => {
+  router.push(`/modules/${event.recordId}/edit`)
 }
 </script>

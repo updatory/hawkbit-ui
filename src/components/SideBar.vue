@@ -24,7 +24,7 @@
           </SideBarLink>
           <SideBarLink label="Modules" href="/modules">
             <template #icon>
-              <ModuleIcon />
+              <UploadIcon />
             </template>
           </SideBarLink>
         </ul>
@@ -43,9 +43,9 @@
 
 <script setup lang="ts">
 import DistributionIcon from '@/icons/DistributionIcon.vue'
-import ModuleIcon from '@/icons/ModuleIcon.vue'
 import TargetIcon from '@/icons/TargetIcon.vue'
 import RolloutIcon from '@/icons/RolloutIcon.vue'
 import UserIcon from '@/icons/UserIcon.vue'
 import SideBarLink from '@/components/SideBarLink.vue'
+import UploadIcon from '@/icons/UploadIcon.vue'
 </script>
