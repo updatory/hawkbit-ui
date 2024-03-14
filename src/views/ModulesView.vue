@@ -49,7 +49,6 @@ const schema = {
     { name: 'name', title: 'Name', type: DataTableFieldType.Text },
     { name: 'version', title: 'Version', type: DataTableFieldType.Text },
     { name: 'type', title: 'Type', type: DataTableFieldType.Text },
-    { name: 'description', title: 'Description', type: DataTableFieldType.Text },
     { name: 'createdAt', title: 'Created At', type: DataTableFieldType.Date }
   ]
 }
@@ -62,7 +61,6 @@ const records = computed(() => {
         module.name,
         module.version,
         module.type,
-        module.description,
         module.createdAt
       ]
     }

@@ -5,6 +5,7 @@ import TargetsView from '@/views/TargetsView.vue'
 import DistributionsView from '@/views/DistributionsView.vue'
 import NewModuleView from '@/views/NewModuleView.vue'
 import EditModuleView from '@/views/EditModuleView.vue'
+import NewDistributionView from '@/views/NewDistributionView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -23,7 +24,16 @@ const router = createRouter({
     {
       path: '/distributions',
       name: 'distributions',
-      component: DistributionsView
+      component: DistributionsView,
+      children: [
+        {
+          path: 'new',
+          component: NewDistributionView,
+          props: {
+            backRouteName: 'distributions'
+          }
+        },
+      ]
     },
     {
       path: '/targets',

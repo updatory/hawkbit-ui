@@ -7,6 +7,7 @@ import ModuleService from '@/services/ModuleService'
 import ArtifactService from '@/services/ArtifactService'
 import mitt from 'mitt';
 import type { EventList } from '@/events/EventList'
+import DistributionService from '@/services/DistributionService'
 
 // Source: https://stackoverflow.com/a/64019074
 const emitter = mitt<EventList>();
@@ -17,6 +18,7 @@ app.config.globalProperties.emitter = emitter;
 
 app.provide('moduleService', new ModuleService());
 app.provide('artifactService', new ArtifactService());
+app.provide('distributionService', new DistributionService());
 
 app.use(router);
 
