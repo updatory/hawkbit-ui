@@ -9,7 +9,7 @@
     </th>
 
     <template v-for="cell in cells" :key="cell.id">
-      <th :class="{'pe-10': cell.last}" class="sticky top-0 bg-gray-50 dark:bg-gray-700 px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase" scope="col" >
+      <th :class="{'pe-10': cell.last}" class="sticky top-0 bg-gray-50 dark:bg-gray-700 px-6 py-3 text-start text-xs text-gray-500 uppercase" scope="col" >
         {{ cell.value }}
       </th>
     </template>

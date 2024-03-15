@@ -1,21 +1,42 @@
 <template>
-  <div class="w-full lg:ps-64">
-    <PageHeader title="Distributions">
-      <template #actions>
-        <PrimaryButton label="New distribution" @click.stop="onNewDistributionClicked">
-          <template #icon>
-            <PlusIcon />
-          </template>
-        </PrimaryButton>
+  <div class="flex flex-row justify-start">
+    <PageSkeleton title="Modules">
+      <template #title>
+        <div class="flex flex-row items-center justify-start gap-2">
+          <h3 class="text-xl dark:text-white">Distributions</h3>
+          <Badge>21</Badge>
+        </div>
       </template>
-    </PageHeader>
-    <DataTable :schema="schema" :records="records" />
-    <router-view />
+      <template #toolbar>
+        <div class="flex flex-row items-center justify-between mt-4">
+          <SearchInput />
+          <div class="flex flex-row gap-2">
+            <SecondaryButton label="Sort by">
+              <template #icon>
+                <SortIcon />
+              </template>
+            </SecondaryButton>
+            <SecondaryButton label="Filter">
+              <template #icon>
+                <FilterIcon />
+              </template>
+            </SecondaryButton>
+            <PrimaryButton label="New distribution" @click.stop="onNewDistributionClicked">
+              <template #icon>
+                <PlusIcon />
+              </template>
+            </PrimaryButton>
+          </div>
+        </div>
+      </template>
+      <template #content>
+        <DataTable :schema="schema" :records="records" />
+      </template>
+    </PageSkeleton>
   </div>
 </template>
 
 <script setup lang="ts">
-import PageHeader from '@/components/PageHeader.vue'
 import DataTable from '@/components/DataTable.vue'
 import PrimaryButton from '@/components/PrimaryButton.vue'
 import PlusIcon from '@/icons/PlusIcon.vue'
@@ -24,6 +45,12 @@ import { computed, inject, onMounted, ref } from 'vue'
 import type Distribution from '@/models/Distribution'
 import type DistributionService from '@/services/DistributionService'
 import { useRouter } from 'vue-router'
+import SecondaryButton from '@/components/SecondaryButton.vue'
+import SortIcon from '@/icons/SortIcon.vue'
+import Badge from '@/components/Badge.vue'
+import SearchInput from '@/components/SearchInput.vue'
+import FilterIcon from '@/icons/FilterIcon.vue'
+import PageSkeleton from '@/components/PageSkeleton.vue'
 
 const distributionService = inject('distributionService') as DistributionService
 

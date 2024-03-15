@@ -1,8 +1,14 @@
 <template>
-  <div class="w-full lg:ps-64">
+  <div class="w-full lg:ps-64 lg:max-w-screen-xl border-r h-dvh bg-white">
     <PageHeader :title="props.title" :back-route-name="props.backRouteName">
+      <template #title>
+        <slot name="title"></slot>
+      </template>
       <template #actions>
         <slot name="actions"></slot>
+      </template>
+      <template #toolbar>
+        <slot name="toolbar"></slot>
       </template>
     </PageHeader>
     <slot name="content"></slot>

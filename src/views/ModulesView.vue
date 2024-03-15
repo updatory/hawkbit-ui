@@ -1,16 +1,41 @@
 <template>
-  <div class="w-full lg:ps-64">
-    <PageHeader title="Modules">
-      <template #actions>
-        <PrimaryButton label="New module" @click.stop="onNewModuleClicked">
-          <template #icon>
-            <PlusIcon />
-          </template>
-        </PrimaryButton>
+  <div class="flex flex-row justify-start">
+    <PageSkeleton title="Modules">
+      <template #title>
+        <div class="flex flex-row items-center justify-start gap-2">
+          <h3 class="text-xl dark:text-white">Modules</h3>
+          <Badge>21</Badge>
+        </div>
       </template>
-    </PageHeader>
-    <DataTable :schema="schema" :records="records" />
+      <template #toolbar>
+        <div class="flex flex-row items-center justify-between mt-4">
+          <SearchInput />
+          <div class="flex flex-row gap-2">
+            <SecondaryButton label="Sort by">
+              <template #icon>
+                <SortIcon />
+              </template>
+            </SecondaryButton>
+            <SecondaryButton label="Filter">
+              <template #icon>
+                <FilterIcon />
+              </template>
+            </SecondaryButton>
+            <PrimaryButton label="New module" @click.stop="onNewModuleClicked">
+              <template #icon>
+                <PlusIcon />
+              </template>
+            </PrimaryButton>
+          </div>
+        </div>
+      </template>
+      <template #content>
+        <DataTable :schema="schema" :records="records" />
+      </template>
+    </PageSkeleton>
+    <router-view />
   </div>
+
 </template>
 
 <script setup lang="ts">
@@ -25,6 +50,14 @@ import type ModuleService from '@/services/ModuleService'
 import type Module from '@/models/Module'
 import useEmitter from '@/hooks/useEmitter'
 import type DataTableRecordClicked from '@/events/DataTableRecordClicked'
+import PageSkeleton from '@/components/PageSkeleton.vue'
+import SearchInput from '@/components/SearchInput.vue'
+import SecondaryButton from '@/components/SecondaryButton.vue'
+import FilterIcon from '@/icons/FilterIcon.vue'
+import SortIcon from '@/icons/SortIcon.vue'
+import IconButton from '@/components/IconButton.vue'
+import BackIcon from '@/icons/BackIcon.vue'
+import Badge from '@/components/Badge.vue'
 
 const emitter = useEmitter();
 

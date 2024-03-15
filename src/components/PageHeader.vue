@@ -3,15 +3,20 @@
     <nav class="flex basis-full items-center w-full mx-auto px-4 sm:px-6 md:px-10" aria-label="Global">
       <div class="w-full">
         <div class="flex flex-row items-center justify-between gap-2">
-          <div class="flex flex-row items-center justify-start gap-2">
-            <IconButton v-if="props.backRouteName" @click.stop="onBack">
-              <template #icon>
-                <BackIcon />
-              </template>
-            </IconButton>
-            <h3 class="text-2xl dark:text-white">{{ props.title }}</h3>
-          </div>
+          <slot name="title">
+            <div class="flex flex-row items-center justify-start gap-2">
+              <IconButton v-if="props.backRouteName" @click.stop="onBack">
+                <template #icon>
+                  <BackIcon class="flex-shrink-0 size-5" />
+                </template>
+              </IconButton>
+              <h3 class="text-xl dark:text-white">{{ props.title }}</h3>
+            </div>
+          </slot>
           <slot name="actions"></slot>
+        </div>
+        <div>
+          <slot name="toolbar"></slot>
         </div>
       </div>
     </nav>

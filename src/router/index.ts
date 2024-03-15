@@ -25,15 +25,13 @@ const router = createRouter({
       path: '/distributions',
       name: 'distributions',
       component: DistributionsView,
-      children: [
-        {
-          path: 'new',
-          component: NewDistributionView,
-          props: {
-            backRouteName: 'distributions'
-          }
-        },
-      ]
+    },
+    {
+      path: '/distributions/new',
+      component: NewDistributionView,
+      props: {
+        backRouteName: 'distributions'
+      }
     },
     {
       path: '/targets',
@@ -57,7 +55,7 @@ const router = createRouter({
     {
       path: '/modules',
       name: 'modules',
-      component: ModulesView
+      component: ModulesView,
     }
   ]
 })
