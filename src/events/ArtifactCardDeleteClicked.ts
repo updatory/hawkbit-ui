@@ -1,3 +1,5 @@
+import type Artifact from '@/models/Artifact'
+
 export default interface ArtifactCardDeleteClicked {
-  artifactId: string;
+  artifact: Artifact
 }

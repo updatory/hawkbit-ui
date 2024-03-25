@@ -1,12 +1,18 @@
 <template>
-  <div class="flex flex-row items-center mb-2 justify-between bg-white border border-gray-200 shadow-sm rounded-xl p-4 md:p-5 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400">
+  <div
+    class="flex flex-row items-center mb-2 justify-between bg-white border border-gray-200 shadow-sm rounded-xl p-4 md:p-5 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400"
+  >
     <div class="flex items-center gap-x-3">
-      <span class="size-8 flex justify-center items-center border border-gray-200 text-gray-500 rounded-lg dark:border-neutral-700">
+      <span
+        class="size-8 flex justify-center items-center border border-gray-200 text-gray-500 rounded-lg dark:border-neutral-700"
+      >
         <BinaryFileIcon class="flex-shrink-0 size-5" />
       </span>
       <div>
-        <p class="text-sm truncate font-medium text-gray-800 dark:text-white">{{ props.artifact.providedFilename }}</p>
-        <p class="text-xs text-gray-500 dark:text-gray-500">{{ Math.floor(props.artifact.size / 1024) }} KB</p>
+        <p class="text-sm truncate font-medium text-gray-800 dark:text-white">
+          {{ props.artifact.fileName.value }}
+        </p>
+        <p class="text-xs text-gray-500 dark:text-gray-500">{{ fileSize }} KB</p>
       </div>
     </div>
     <div class="inline-flex items-center gap-x-2">
@@ -18,21 +24,25 @@
 </template>
 
 <script setup lang="ts">
-import type Artifact from '@/models/Artifact'
-import type { PropType } from 'vue'
+import { computed, type PropType } from 'vue'
 import useEmitter from '@/hooks/useEmitter'
 import TrashIcon from '@/icons/TrashIcon.vue'
 import BinaryFileIcon from '@/icons/BinaryFileIcon.vue'
+import type Artifact from '@/models/Artifact'
 
 const props = defineProps({
-  artifact: { type: Object as PropType<Artifact>, required: true },
+  artifact: { type: Object as PropType<Artifact>, required: true }
 })
 
 const emitter = useEmitter()
 
+const fileSize = computed(() => {
+  return Math.floor(props.artifact.fileSize.value / 1024)
+})
+
 const onDeleteClicked = () => {
   emitter.emit('artifactCardDeleteClicked', {
-    artifactId: props.artifact.id
-  });
+    artifact: props.artifact
+  })
 }
 </script>

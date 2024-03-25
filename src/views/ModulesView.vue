@@ -35,19 +35,16 @@
     </PageSkeleton>
     <router-view />
   </div>
-
 </template>
 
 <script setup lang="ts">
-import PageHeader from '@/components/PageHeader.vue'
 import DataTable from '@/components/DataTable.vue'
 import PrimaryButton from '@/components/PrimaryButton.vue'
 import PlusIcon from '@/icons/PlusIcon.vue'
 import DataTableFieldType from '@/models/DataTableFieldType'
 import { useRouter } from 'vue-router'
-import { computed, inject, onMounted, onUnmounted, ref } from 'vue'
-import type ModuleService from '@/services/ModuleService'
-import type Module from '@/models/Module'
+import { computed, onMounted, onUnmounted, shallowRef } from 'vue'
+import Module from '@/models/Module'
 import useEmitter from '@/hooks/useEmitter'
 import type DataTableRecordClicked from '@/events/DataTableRecordClicked'
 import PageSkeleton from '@/components/PageSkeleton.vue'
@@ -55,26 +52,20 @@ import SearchInput from '@/components/SearchInput.vue'
 import SecondaryButton from '@/components/SecondaryButton.vue'
 import FilterIcon from '@/icons/FilterIcon.vue'
 import SortIcon from '@/icons/SortIcon.vue'
-import IconButton from '@/components/IconButton.vue'
-import BackIcon from '@/icons/BackIcon.vue'
 import Badge from '@/components/Badge.vue'
 
-const emitter = useEmitter();
+const emitter = useEmitter()
 
-const moduleService = inject('moduleService') as ModuleService
+const modules = shallowRef<Module[]>([])
 
-const modules = ref<Module[]>([])
+onMounted(async () => {
+  emitter.on('dataTableRecordClicked', onDataTableRecordClicked)
 
-onMounted(() => {
-  emitter.on('dataTableRecordClicked', onDataTableRecordClicked);
-
-  moduleService.getAll().then(data => {
-    modules.value = data
-  })
+  modules.value = await Module.getAll()
 })
 
 onUnmounted(() => {
-  emitter.off('dataTableRecordClicked', onDataTableRecordClicked);
+  emitter.off('dataTableRecordClicked', onDataTableRecordClicked)
 })
 
 const schema = {
@@ -89,13 +80,8 @@ const schema = {
 const records = computed(() => {
   return modules.value.map((module) => {
     return {
-      id: module.id,
-      values: [
-        module.name,
-        module.version,
-        module.type,
-        module.createdAt
-      ]
+      id: module.id.value,
+      values: [module.name.value, module.version.value, module.type.value, module.createdAt.value]
     }
   })
 })

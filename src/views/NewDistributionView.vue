@@ -1,28 +1,42 @@
 <template>
   <PageSkeleton title="New distribution" :back-route-name="props.backRouteName">
     <template #actions>
-      <PrimaryButton v-if="activeTab === ModuleTab.Details" label="Next" @click.stop="onNextClicked"/>
-      <PrimaryButton v-if="activeTab === ModuleTab.Modules" label="Save" @click.stop="onSaveClicked"/>
+      <PrimaryButton
+        v-if="activeTab === ModuleTab.Details"
+        label="Next"
+        @click.stop="onNextClicked"
+      />
+      <PrimaryButton
+        v-if="activeTab === ModuleTab.Modules"
+        label="Save"
+        @click.stop="onSaveClicked"
+      />
     </template>
     <template #content>
       <TabPanels>
         <template #panels>
-          <TabPanel :active="activeTab === ModuleTab.Details"
-                    title="Details"
-                    description="Create new distribution."
-                    wizard
-                    first />
-          <TabPanel :active="activeTab === ModuleTab.Modules"
-                    title="Modules"
-                    description="Link modules."
-                    wizard />
+          <TabPanel
+            :active="activeTab === ModuleTab.Details"
+            title="Details"
+            description="Create new distribution."
+            wizard
+            first
+          />
+          <TabPanel
+            :active="activeTab === ModuleTab.Modules"
+            title="Modules"
+            description="Link modules."
+            wizard
+          />
         </template>
       </TabPanels>
-      <DetailsDistributionTab v-if="activeTab === ModuleTab.Details"
-                              v-model:name="name"
-                              v-model:version="version"
-                              v-model:description="description"
-                              v-bind:type-options="typeOptions" />
+      <DetailsDistributionTab
+        v-if="activeTab === ModuleTab.Details"
+        v-model:name="name"
+        v-model:version="version"
+        v-model:description="description"
+        v-bind:type-options="typeOptions"
+      />
       <ModulesDistributionTab v-if="activeTab === ModuleTab.Modules" />
     </template>
   </PageSkeleton>
@@ -53,19 +67,18 @@ const router = useRouter()
 const moduleService = inject('moduleService') as ModuleService
 
 const props = defineProps({
-  backRouteName: { type: String, required: true },
+  backRouteName: { type: String, required: true }
 })
 
 onMounted(async () => {
-  const moduleTypes = await moduleService.getTypes();
-  typeOptions.value = moduleTypes.map(moduleType => {
+  const moduleTypes = await moduleService.getTypes()
+  typeOptions.value = moduleTypes.map((moduleType) => {
     return { text: moduleType.name, value: moduleType.id }
   })
   type.value = moduleTypes[0].id
 })
 
-onUnmounted(() => {
-})
+onUnmounted(() => {})
 
 const name = ref<string>()
 const version = ref<string>()
@@ -99,5 +112,4 @@ const onNextClicked = async () => {
 const onSaveClicked = async () => {
   await router.push({ name: props.backRouteName })
 }
-
 </script>

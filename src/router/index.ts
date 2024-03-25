@@ -3,9 +3,8 @@ import RolloutsView from '@/views/RolloutsView.vue'
 import ModulesView from '@/views/ModulesView.vue'
 import TargetsView from '@/views/TargetsView.vue'
 import DistributionsView from '@/views/DistributionsView.vue'
-import NewModuleView from '@/views/NewModuleView.vue'
-import EditModuleView from '@/views/EditModuleView.vue'
 import NewDistributionView from '@/views/NewDistributionView.vue'
+import ModuleFormView from '@/views/ModuleFormView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -24,7 +23,7 @@ const router = createRouter({
     {
       path: '/distributions',
       name: 'distributions',
-      component: DistributionsView,
+      component: DistributionsView
     },
     {
       path: '/distributions/new',
@@ -40,14 +39,14 @@ const router = createRouter({
     },
     {
       path: '/modules/new',
-      component: NewModuleView,
+      component: ModuleFormView,
       props: {
         backRouteName: 'modules'
       }
     },
     {
       path: '/modules/:id/edit',
-      component: EditModuleView,
+      component: ModuleFormView,
       props: {
         backRouteName: 'modules'
       }
@@ -55,7 +54,7 @@ const router = createRouter({
     {
       path: '/modules',
       name: 'modules',
-      component: ModulesView,
+      component: ModulesView
     }
   ]
 })

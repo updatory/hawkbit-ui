@@ -3,23 +3,21 @@ import './style.css'
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
-import ModuleService from '@/services/ModuleService'
-import ArtifactService from '@/services/ArtifactService'
-import mitt from 'mitt';
+import mitt from 'mitt'
 import type { EventList } from '@/events/EventList'
 import DistributionService from '@/services/DistributionService'
 
 // Source: https://stackoverflow.com/a/64019074
-const emitter = mitt<EventList>();
+const emitter = mitt<EventList>()
 
-const app = createApp(App);
+const app = createApp(App)
 
-app.config.globalProperties.emitter = emitter;
+app.config.globalProperties.emitter = emitter
 
-app.provide('moduleService', new ModuleService());
-app.provide('artifactService', new ArtifactService());
-app.provide('distributionService', new DistributionService());
+// app.provide('moduleService', new ModuleService())
+// app.provide('artifactService', new ArtifactService())
+app.provide('distributionService', new DistributionService())
 
-app.use(router);
+app.use(router)
 
-app.mount('#app');
+app.mount('#app')
