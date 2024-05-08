@@ -3,7 +3,6 @@ import RolloutsView from '@/views/RolloutsView.vue'
 import ModulesView from '@/views/ModulesView.vue'
 import TargetsView from '@/views/TargetsView.vue'
 import DistributionsView from '@/views/DistributionsView.vue'
-import NewDistributionView from '@/views/NewDistributionView.vue'
 import ModuleFormView from '@/views/ModuleFormView.vue'
 
 const router = createRouter({
@@ -25,13 +24,13 @@ const router = createRouter({
       name: 'distributions',
       component: DistributionsView
     },
-    {
-      path: '/distributions/new',
-      component: NewDistributionView,
-      props: {
-        backRouteName: 'distributions'
-      }
-    },
+    // {
+    //   path: '/distributions/new',
+    //   component: NewDistributionView,
+    //   props: {
+    //     backRouteName: 'distributions'
+    //   }
+    // },
     {
       path: '/targets',
       name: 'targets',

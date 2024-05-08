@@ -10,7 +10,7 @@
       </span>
       <div>
         <p class="text-sm truncate font-medium text-gray-800 dark:text-white">
-          {{ props.artifact.fileName.value }}
+          {{ props.artifact.fileName }}
         </p>
         <p class="text-xs text-gray-500 dark:text-gray-500">{{ fileSize }} KB</p>
       </div>
@@ -37,7 +37,7 @@ const props = defineProps({
 const emitter = useEmitter()
 
 const fileSize = computed(() => {
-  return Math.floor(props.artifact.fileSize.value / 1024)
+  return Math.floor(props.artifact.fileSize / 1024)
 })
 
 const onDeleteClicked = () => {

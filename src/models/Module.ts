@@ -1,36 +1,28 @@
 import type { Ref } from 'vue'
 import { shallowReactive, shallowRef } from 'vue'
 import { isBlank } from '@/utils/Validation'
-import { v4 as uuidv4 } from 'uuid'
 import Artifact from '@/models/Artifact'
 import { removeItem } from '@/utils/Array'
 import { notifyUpdateRef } from '@/utils/notifyUpdateRef'
 import type ModuleProperty from '@/models/ModuleProperty'
+import type { Optional } from '@/utils/Types'
+import AbstractModel from '@/models/AbstractModel'
 
-export default class Module {
-  id: Ref<string | undefined>
-  name: Ref<string | undefined>
-  version: Ref<string | undefined>
-  type: Ref<string | undefined>
-  vendor: Ref<string | undefined>
-  description: Ref<string | undefined>
-  encrypted: Ref<boolean>
-  createdAt: Ref<number | undefined>
+export default class Module extends AbstractModel {
+  private readonly _name: Ref<Optional<string>>
+  private readonly _version: Ref<Optional<string>>
+  private readonly _type: Ref<Optional<string>>
+  private readonly _vendor: Ref<Optional<string>>
+  private readonly _description: Ref<Optional<string>>
+  private readonly _encrypted: Ref<boolean>
+  private readonly _createdAt: Ref<Optional<number>>
 
-  artifacts: Ref<Artifact[]>
-  properties: Ref<ModuleProperty[]>
+  private readonly _artifacts: Artifact[]
+  private readonly _properties: ModuleProperty[]
 
-  meta: {
-    isNew: Ref<boolean>
-    isUpdated: Ref<boolean>
-    isDeleted: Ref<boolean>
-    instanceId: Ref<string>
-    validation: {
-      name: Ref<string | undefined>
-      type: Ref<string | undefined>
-      version: Ref<string | undefined>
-    }
-  }
+  private readonly _nameError: Ref<Optional<string>>
+  private readonly _typeError: Ref<Optional<string>>
+  private readonly _versionError: Ref<Optional<string>>
 
   private artifactDeleteQueue: Artifact[] = []
   private propertyDeleteQueue: ModuleProperty[] = []
@@ -58,70 +50,151 @@ export default class Module {
     artifacts?: Artifact[]
     properties?: ModuleProperty[]
   }) {
+    super(id)
+
     const onUpdate = this.onUpdate.bind(this)
 
-    this.id = shallowRef(id)
-    this.name = shallowRef(name)
-    this.version = shallowRef(version)
-    this.type = shallowRef(type)
-    this.encrypted = shallowRef(encrypted || false)
-    this.vendor = notifyUpdateRef(vendor, onUpdate)
-    this.description = notifyUpdateRef(description, onUpdate)
-    this.createdAt = shallowRef(createdAt)
+    this._name = shallowRef(name)
+    this._version = shallowRef(version)
+    this._type = shallowRef(type)
+    this._encrypted = shallowRef(encrypted || false)
+    this._vendor = notifyUpdateRef(vendor, onUpdate)
+    this._description = notifyUpdateRef(description, onUpdate)
+    this._createdAt = shallowRef(createdAt)
 
-    this.artifacts = shallowRef(shallowReactive(artifacts || []))
-    this.properties = shallowRef(shallowReactive(properties || []))
+    this._artifacts = shallowReactive(artifacts || [])
+    this._properties = shallowReactive(properties || [])
 
-    this.meta = {
-      isNew: shallowRef(!id),
-      isUpdated: shallowRef(false),
-      isDeleted: shallowRef(false),
-      instanceId: shallowRef(uuidv4()),
-      validation: {
-        name: shallowRef(undefined),
-        type: shallowRef(undefined),
-        version: shallowRef(undefined)
-      }
-    }
+    this._nameError = shallowRef(undefined)
+    this._typeError = shallowRef(undefined)
+    this._versionError = shallowRef(undefined)
   }
 
   private onUpdate(): void {
-    this.meta.isUpdated.value = true
+    this.isUpdated = true
+  }
+
+  get name(): Optional<string> {
+    return this._name.value
+  }
+
+  set name(value: string) {
+    this._name.value = value
+  }
+
+  get version(): Optional<string> {
+    return this._version.value
+  }
+
+  set version(value: string) {
+    this._version.value = value
+  }
+
+  get type(): Optional<string> {
+    return this._type.value
+  }
+
+  set type(value: string) {
+    this._type.value = value
+  }
+
+  get vendor(): Optional<string> {
+    return this._vendor.value
+  }
+
+  set vendor(value: string) {
+    this._vendor.value = value
+  }
+
+  get description(): Optional<string> {
+    return this._description.value
+  }
+
+  set description(value: string) {
+    this._description.value = value
+  }
+
+  get encrypted(): boolean {
+    return this._encrypted.value
+  }
+
+  set encrypted(value: boolean) {
+    this._encrypted.value = value
+  }
+
+  get createdAt(): Optional<number> {
+    return this._createdAt.value
+  }
+
+  private set createdAt(value: number) {
+    this._createdAt.value = value
+  }
+
+  get artifacts(): Artifact[] {
+    return this._artifacts
+  }
+
+  get properties(): ModuleProperty[] {
+    return this._properties
+  }
+
+  get nameError(): Optional<string> {
+    return this._nameError.value
+  }
+
+  private set nameError(value: string) {
+    this._nameError.value = value
+  }
+
+  get typeError(): Optional<string> {
+    return this._typeError.value
+  }
+
+  private set typeError(value: string) {
+    this._typeError.value = value
+  }
+
+  get versionError(): Optional<string> {
+    return this._versionError.value
+  }
+
+  private set versionError(value: string) {
+    this._versionError.value = value
   }
 
   addProperty(property: ModuleProperty): void {
-    this.properties.value.push(property)
+    this.properties.push(property)
   }
 
   removeProperty(property: ModuleProperty): void {
     this.propertyDeleteQueue.push(property)
-    removeItem(this.properties.value, property)
+    removeItem(this.properties, property)
   }
 
   addArtifact(artifact: Artifact): void {
-    this.artifacts.value.push(artifact)
+    this.artifacts.push(artifact)
   }
 
   removeArtifact(artifact: Artifact): void {
     this.artifactDeleteQueue.push(artifact)
-    removeItem(this.artifacts.value, artifact)
+    removeItem(this.artifacts, artifact)
   }
 
-  validate(): boolean {
+  async validate(): Promise<boolean> {
     let isValid = true
 
     const requiredMessage = 'Required'
 
-    if (isBlank(this.name.value)) {
-      this.meta.validation.name.value = requiredMessage
+    if (isBlank(this.name)) {
+      this.nameError = requiredMessage
       isValid = false
     }
-    if (isBlank(this.type.value)) {
-      this.meta.validation.type.value = requiredMessage
+    if (isBlank(this.type)) {
+      this.typeError = requiredMessage
       isValid = false
     }
-    if (isBlank(this.version.value)) {
-      this.meta.validation.version.value = requiredMessage
+    if (isBlank(this.version)) {
+      this.versionError = requiredMessage
       isValid = false
     }
 
@@ -131,11 +204,11 @@ export default class Module {
   private async create(): Promise<void> {
     const body = JSON.stringify([
       {
-        name: this.name.value,
-        version: this.version.value,
-        type: this.type.value,
-        vendor: this.vendor.value,
-        description: this.description.value,
+        name: this.name,
+        version: this.version,
+        type: this.type,
+        vendor: this.vendor,
+        description: this.description,
         // encrypted: this.encrypted.value
         encrypted: false
       }
@@ -155,17 +228,17 @@ export default class Module {
 
     const results = await response.json()
 
-    this.id.value = results[0].id
-    this.meta.isNew.value = false
+    this.id = results[0].id
+    this.isNew = false
   }
 
   private async update(): Promise<void> {
     const body = JSON.stringify({
-      vendor: this.vendor.value,
-      description: this.vendor.value
+      vendor: this.vendor,
+      description: this.vendor
     })
 
-    const response = await fetch(`/rest/v1/softwaremodules/${this.id.value}`, {
+    const response = await fetch(`/rest/v1/softwaremodules/${this.id}`, {
       method: 'PUT',
       body,
       headers: {
@@ -173,22 +246,22 @@ export default class Module {
       }
     })
 
-    if (response.status !== 200) {
+    if (response.status !== 200 && response.status !== 201) {
       throw new Error('Failed to update module')
     }
   }
 
   async save(): Promise<void> {
-    if (this.meta.isNew.value) {
+    if (this.isNew) {
       await this.create()
-    } else if (this.meta.isUpdated.value) {
+    } else if (this.isUpdated) {
       await this.update()
     }
 
     while (this.artifactDeleteQueue.length > 0) {
       const artifact = this.artifactDeleteQueue[0]
       if (artifact) {
-        await artifact.delete(this.id.value!)
+        await artifact.delete(this.id!)
         this.artifactDeleteQueue.shift()
       }
     }
@@ -196,17 +269,17 @@ export default class Module {
     while (this.propertyDeleteQueue.length > 0) {
       const property = this.propertyDeleteQueue[0]
       if (property) {
-        await property.delete(this.id.value!)
+        await property.delete(this.id!)
         this.propertyDeleteQueue.shift()
       }
     }
 
-    for (const artifact of this.artifacts.value) {
-      await artifact.save(this.id.value!)
+    for (const artifact of this.artifacts) {
+      await artifact.save(this.id!)
     }
 
-    for (const property of this.properties.value) {
-      await property.save(this.id.value!)
+    for (const property of this.properties) {
+      await property.save(this.id!)
     }
   }
 

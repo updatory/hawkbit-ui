@@ -1,23 +1,16 @@
 import type { Ref } from 'vue'
-import { shallowRef } from 'vue'
 import { notifyUpdateRef } from '@/utils/notifyUpdateRef'
-import { v4 as uuidv4 } from 'uuid'
+import AbstractModel from '@/models/AbstractModel'
+import type { Optional } from '@/utils/Types'
+import { shallowRef } from 'vue'
 
-export default class ModuleProperty {
-  key: Ref<string | undefined>
-  value: Ref<string | undefined>
-  targetVisible: Ref<boolean>
+export default class ModuleProperty extends AbstractModel {
+  private readonly _key: Ref<Optional<string>>
+  private readonly _value: Ref<Optional<string>>
+  private readonly _targetVisible: Ref<boolean>
 
-  meta: {
-    isNew: Ref<boolean>
-    isUpdated: Ref<boolean>
-    isDeleted: Ref<boolean>
-    instanceId: Ref<string>
-    validation: {
-      key: Ref<string | undefined>
-      value: Ref<string | undefined>
-    }
-  }
+  private readonly _keyError: Ref<Optional<string>>
+  private readonly _valueError: Ref<Optional<string>>
 
   constructor({
     key,
@@ -28,60 +21,108 @@ export default class ModuleProperty {
     value?: string
     targetVisible?: boolean
   }) {
+    super(key)
+
     const onUpdate = this.onUpdate.bind(this)
 
-    this.key = notifyUpdateRef(key, onUpdate)
-    this.value = notifyUpdateRef(value, onUpdate)
-    this.targetVisible = notifyUpdateRef(targetVisible || false, onUpdate)
+    this._key = notifyUpdateRef(key, onUpdate)
+    this._value = notifyUpdateRef(value, onUpdate)
+    this._targetVisible = notifyUpdateRef(targetVisible || false, onUpdate)
 
-    this.meta = {
-      isNew: shallowRef(!key),
-      isUpdated: shallowRef(false),
-      isDeleted: shallowRef(false),
-      instanceId: shallowRef(uuidv4()),
-      validation: {
-        key: shallowRef(undefined),
-        value: shallowRef(undefined)
-      }
-    }
+    this._keyError = shallowRef(undefined)
+    this._valueError = shallowRef(undefined)
+  }
+
+  get key(): Optional<string> {
+    return this._key.value
+  }
+
+  set key(value: string) {
+    this.id = value
+    this._key.value = value
+  }
+
+  get value(): Optional<string> {
+    return this._value.value
+  }
+
+  set value(value: string) {
+    this._value.value = value
+  }
+
+  get targetVisible(): boolean {
+    return this._targetVisible.value
+  }
+
+  set targetVisible(value: boolean) {
+    this._targetVisible.value = value
+  }
+
+  get keyError(): Optional<string> {
+    return this._keyError.value
+  }
+
+  private set keyError(value: string) {
+    this._keyError.value = value
+  }
+
+  get valueError(): Optional<string> {
+    return this._valueError.value
+  }
+
+  private set valueError(value: string) {
+    this._valueError.value = value
   }
 
   private onUpdate(): void {
-    this.meta.isUpdated.value = true
+    this.isUpdated = true
   }
 
-  validate(): boolean {
+  async validate(): Promise<boolean> {
     let isValid = true
 
     const requiredMessage = 'Required'
 
-    if (!this.key.value) {
-      this.meta.validation.key.value = requiredMessage
+    if (!this.key) {
+      this.keyError = requiredMessage
       isValid = false
     }
 
-    if (!this.value.value) {
-      this.meta.validation.value.value = requiredMessage
+    if (!this.value) {
+      this.valueError = requiredMessage
       isValid = false
     }
 
-    return isValid
+    return Promise.resolve(isValid)
   }
 
   async save(moduleId: string): Promise<void> {
-    if (this.meta.isNew.value) {
+    if (this.isNew) {
       await this.create(moduleId)
-    } else if (this.meta.isUpdated.value) {
+    } else if (this.isUpdated) {
       await this.delete(moduleId)
       await this.create(moduleId)
     }
   }
 
+  async delete(moduleId: string): Promise<void> {
+    const propertyKey = this.key
+    const response = await fetch(`/rest/v1/softwaremodules/${moduleId}/metadata/${propertyKey}`, {
+      method: 'DELETE'
+    })
+
+    if (response.status !== 200) {
+      throw new Error('Failed to delete property')
+    }
+
+    this.isDeleted = true
+  }
+
   private async create(moduleId: string): Promise<void> {
     const body = JSON.stringify({
-      key: this.key.value,
-      value: this.value.value,
-      targetVisible: this.targetVisible.value
+      key: this.key,
+      value: this.value,
+      targetVisible: this.targetVisible
     })
 
     const response = await fetch(`/rest/v1/softwaremodules/${moduleId}/metadata`, {
@@ -92,23 +133,10 @@ export default class ModuleProperty {
       body
     })
 
-    if (response.status !== 200) {
+    if (response.status !== 200 && response.status !== 201) {
       throw new Error('Failed to create property')
     }
 
-    this.meta.isNew.value = false
-  }
-
-  async delete(moduleId: string): Promise<void> {
-    const propertyKey = this.key.value
-    const response = await fetch(`/rest/v1/softwaremodules/${moduleId}/metadata/${propertyKey}`, {
-      method: 'DELETE'
-    })
-
-    if (response.status !== 200) {
-      throw new Error('Failed to delete property')
-    }
-
-    this.meta.isDeleted.value = true
+    this.isNew = false
   }
 }

@@ -1,20 +1,14 @@
 import type { Ref } from 'vue'
 import UploadState from '@/models/UploadState'
 import { shallowRef } from 'vue'
-import { v4 as uuidv4 } from 'uuid'
+import AbstractModel from '@/models/AbstractModel'
 
-export default class Artifact {
-  id: Ref<string | undefined>
-  fileName: Ref<string>
-  fileSize: Ref<number>
+export default class Artifact extends AbstractModel {
+  private readonly _fileName: Ref<string>
+  private readonly _fileSize: Ref<number>
 
-  meta: {
-    isNew: Ref<boolean>
-    isDeleted: Ref<boolean>
-    instanceId: Ref<string>
-    uploadProgress: Ref<number>
-    uploadState: Ref<UploadState>
-  }
+  private readonly _uploadProgress: Ref<number>
+  private readonly _uploadState: Ref<UploadState>
 
   private readonly file?: File
 
@@ -29,23 +23,43 @@ export default class Artifact {
     fileName: string
     fileSize: number
   }) {
-    this.id = shallowRef(id)
-    this.fileName = shallowRef(fileName)
-    this.fileSize = shallowRef(fileSize)
+    super(id)
+
+    this._fileName = shallowRef(fileName)
+    this._fileSize = shallowRef(fileSize)
+
+    this._uploadProgress = shallowRef(0)
+    this._uploadState = shallowRef(UploadState.Idle)
 
     this.file = file
+  }
 
-    this.meta = {
-      isNew: shallowRef(!!id),
-      isDeleted: shallowRef(false),
-      instanceId: shallowRef(uuidv4()),
-      uploadProgress: shallowRef(0),
-      uploadState: shallowRef(UploadState.Idle)
-    }
+  get fileName(): string {
+    return this._fileName.value
+  }
+
+  get fileSize(): number {
+    return this._fileSize.value
+  }
+
+  get uploadProgress(): number {
+    return this._uploadProgress.value
+  }
+
+  private set uploadProgress(value: number) {
+    this._uploadProgress.value = value
+  }
+
+  get uploadState(): UploadState {
+    return this._uploadState.value
+  }
+
+  private set uploadState(value: UploadState) {
+    this._uploadState.value = value
   }
 
   save(moduleId: string): Promise<void> {
-    if (!this.meta.isNew.value) {
+    if (!this.isNew) {
       return Promise.resolve()
     }
 
@@ -54,32 +68,32 @@ export default class Artifact {
       xhr.open('POST', `/rest/v1/softwaremodules/${moduleId}/artifacts`)
 
       xhr.upload.onloadstart = () => {
-        this.meta.uploadProgress.value = 0
-        this.meta.uploadState.value = UploadState.Progress
+        this.uploadProgress = 0
+        this.uploadState = UploadState.Progress
       }
 
       xhr.upload.onloadend = () => {
-        this.meta.uploadProgress.value = 100
-        this.meta.uploadState.value = UploadState.Completed
+        this.uploadProgress = 100
+        this.uploadState = UploadState.Completed
       }
 
       xhr.upload.onprogress = (event) => {
-        this.meta.uploadProgress.value = Math.ceil((event.loaded / event.total) * 100)
+        this.uploadProgress = Math.ceil((event.loaded / event.total) * 100)
       }
 
       xhr.onload = () => {
-        if (xhr.status === 200) {
-          this.meta.uploadProgress.value = 100
-          this.meta.uploadState.value = UploadState.Completed
+        if (xhr.status === 200 || xhr.status === 201) {
+          this.uploadProgress = 100
+          this.uploadState = UploadState.Completed
           resolve()
         } else {
-          this.meta.uploadState.value = UploadState.Failed
+          this.uploadState = UploadState.Failed
           reject()
         }
       }
 
       xhr.onerror = () => {
-        this.meta.uploadState.value = UploadState.Failed
+        this.uploadState = UploadState.Failed
         reject()
       }
 
@@ -90,7 +104,7 @@ export default class Artifact {
   }
 
   async delete(moduleId: string): Promise<void> {
-    const artifactId = this.id.value
+    const artifactId = this.id
     const response = await fetch(`/rest/v1/softwaremodules/${moduleId}/artifacts/${artifactId}`, {
       method: 'DELETE'
     })
@@ -99,7 +113,7 @@ export default class Artifact {
       throw new Error('Failed to delete artifact')
     }
 
-    this.meta.isDeleted.value = true
+    this.isDeleted = true
   }
 
   static async getAll(moduleId: string): Promise<Artifact[]> {

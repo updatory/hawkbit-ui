@@ -80,8 +80,8 @@ const schema = {
 const records = computed(() => {
   return modules.value.map((module) => {
     return {
-      id: module.id.value,
-      values: [module.name.value, module.version.value, module.type.value, module.createdAt.value]
+      id: module.id!,
+      values: [module.name!, module.version!, module.type!, module.createdAt!]
     }
   })
 })

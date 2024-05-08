@@ -12,9 +12,9 @@
             <div class="sm:col-span-2 space-y-2">
               <FormInput
                 label="Name"
-                v-model="module.name.value"
-                :error="module.meta.validation.name.value"
-                :disabled="!module.meta.isNew.value"
+                v-model="state.module.name"
+                :error="state.module.nameError"
+                :disabled="!state.module.isNew"
                 required
               />
             </div>
@@ -22,9 +22,9 @@
             <div class="sm:col-span-2 space-y-2">
               <FormInput
                 label="Version"
-                v-model="module.version.value"
-                :error="module.meta.validation.version.value"
-                :disabled="!module.meta.isNew.value"
+                v-model="state.module.version"
+                :error="state.module.versionError"
+                :disabled="!state.module.isNew"
                 required
               />
             </div>
@@ -32,27 +32,27 @@
             <div class="sm:col-span-2 space-y-2">
               <FormSelect
                 label="Type"
-                v-model="module.type.value"
+                v-model="state.module.type"
                 :options="moduleTypeOptions"
-                :error="module.meta.validation.type.value"
-                :disabled="!module.meta.isNew.value"
+                :error="state.module.typeError"
+                :disabled="!state.module.isNew"
                 required
               />
             </div>
 
             <div class="col-span-full space-y-2">
-              <FormInput label="Vendor" v-model="module.vendor.value" />
+              <FormInput label="Vendor" v-model="state.module.vendor" />
             </div>
 
             <div class="col-span-full flex flex-row items-center justify-start gap-2">
-              <FormSwitch :disabled="!module.meta.isNew.value" />
+              <FormSwitch :disabled="!state.module.isNew" />
               <span class="text-sm text-gray-500 ms-3 dark:text-gray-400"
                 >Enable files encryption</span
               >
             </div>
 
             <div class="space-y-2 col-span-full">
-              <FormTextArea label="Description" v-model="module.description.value" />
+              <FormTextArea label="Description" v-model="state.module.description" />
             </div>
 
             <div class="col-span-full">
@@ -61,8 +61,8 @@
 
             <div class="space-y-2 col-span-full">
               <FormProperty
-                v-for="property in module.properties.value"
-                :key="property.meta.instanceId"
+                v-for="property in state.module.properties"
+                :key="property.instanceId"
               />
             </div>
 
@@ -84,11 +84,11 @@
                   <UploadArea />
                 </div>
                 <div
-                  v-for="artifact in module.artifacts.value"
-                  :key="artifact.meta.instanceId.value"
+                  v-for="artifact in state.module.artifacts"
+                  :key="artifact.instanceId"
                   class="sm:col-span-3"
                 >
-                  <ArtifactCard :artifact="artifact" />
+                  <ArtifactCard :artifact="artifact as Artifact" />
                 </div>
               </div>
             </div>
@@ -105,7 +105,7 @@
 import { useRoute } from 'vue-router'
 import PrimaryButton from '@/components/PrimaryButton.vue'
 import PageSkeleton from '@/components/PageSkeleton.vue'
-import { computed, onMounted, onUnmounted, ref, shallowRef } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import FormProperty from '@/components/FormProperty.vue'
 import UploadArea from '@/components/UploadArea.vue'
 import FormSelect, { type Option } from '@/components/FormSelect.vue'
@@ -134,7 +134,11 @@ const title = computed(() => {
   return route.params.id ? 'Edit module' : 'New module'
 })
 
-const module = shallowRef(new Module({}))
+const state = reactive<{
+  module: Module
+}>({
+  module: new Module({})
+})
 
 const moduleTypeOptions = ref<Option[]>([])
 
@@ -145,9 +149,9 @@ onMounted(async () => {
   })
 
   if (typeof route.params.id === 'string') {
-    module.value = await Module.getById(route.params.id)
+    state.module = await Module.getById(route.params.id)
   } else {
-    module.value = new Module({
+    state.module = new Module({
       type: moduleTypes[0].key
     })
   }
@@ -167,22 +171,22 @@ onUnmounted(() => {
 
 const onUploadAreaFilesSelected = async (event: UploadAreaFilesSelected) => {
   for (const file of event.files) {
-    module.value.addArtifact(Artifact.fromFile(file))
+    state.module.addArtifact(Artifact.fromFile(file))
   }
 }
 
 const onArtifactCardDeleteClicked = async (event: ArtifactCardDeleteClicked) => {
-  module.value.removeArtifact(event.artifact)
+  state.module.removeArtifact(event.artifact)
 }
 
 const onSaveClicked = async () => {
-  if (module.value.validate()) {
-    await module.value.save()
+  if (await state.module.validate()) {
+    await state.module.save()
     console.log('==> saved')
   }
 }
 
 const onAddProperty = () => {
-  module.value.addProperty(new ModuleProperty({}))
+  state.module.addProperty(new ModuleProperty({}))
 }
 </script>
