@@ -58,59 +58,60 @@ export default class Artifact extends AbstractModel {
     this._uploadState.value = value
   }
 
-  save(moduleId: string): Promise<void> {
-    if (!this.isNew) {
-      return Promise.resolve()
-    }
+  async save(moduleId: string): Promise<void> {
+    if (this.isNew) {
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest()
+        xhr.open('POST', `/rest/v1/softwaremodules/${moduleId}/artifacts`)
 
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest()
-      xhr.open('POST', `/rest/v1/softwaremodules/${moduleId}/artifacts`)
+        xhr.upload.onloadstart = () => {
+          this.uploadProgress = 0
+          this.uploadState = UploadState.Progress
+        }
 
-      xhr.upload.onloadstart = () => {
-        this.uploadProgress = 0
-        this.uploadState = UploadState.Progress
-      }
-
-      xhr.upload.onloadend = () => {
-        this.uploadProgress = 100
-        this.uploadState = UploadState.Completed
-      }
-
-      xhr.upload.onprogress = (event) => {
-        this.uploadProgress = Math.ceil((event.loaded / event.total) * 100)
-      }
-
-      xhr.onload = () => {
-        if (xhr.status === 200 || xhr.status === 201) {
+        xhr.upload.onloadend = () => {
           this.uploadProgress = 100
           this.uploadState = UploadState.Completed
-          resolve()
-        } else {
+        }
+
+        xhr.upload.onprogress = (event) => {
+          this.uploadProgress = Math.ceil((event.loaded / event.total) * 100)
+        }
+
+        xhr.onload = () => {
+          if (xhr.status === 200 || xhr.status === 201) {
+            this.uploadProgress = 100
+            this.uploadState = UploadState.Completed
+            this.isNew = false
+            resolve()
+          } else {
+            this.uploadState = UploadState.Failed
+            reject()
+          }
+        }
+
+        xhr.onerror = () => {
           this.uploadState = UploadState.Failed
           reject()
         }
-      }
 
-      xhr.onerror = () => {
-        this.uploadState = UploadState.Failed
-        reject()
-      }
-
-      const formData = new FormData()
-      formData.append('file', this.file!)
-      xhr.send(formData)
-    })
+        const formData = new FormData()
+        formData.append('file', this.file!)
+        xhr.send(formData)
+      })
+    }
   }
 
   async delete(moduleId: string): Promise<void> {
-    const artifactId = this.id
-    const response = await fetch(`/rest/v1/softwaremodules/${moduleId}/artifacts/${artifactId}`, {
-      method: 'DELETE'
-    })
+    if (!this.isNew && !this.isDeleted) {
+      const artifactId = this.id
+      const response = await fetch(`/rest/v1/softwaremodules/${moduleId}/artifacts/${artifactId}`, {
+        method: 'DELETE'
+      })
 
-    if (response.status !== 200) {
-      throw new Error('Failed to delete artifact')
+      if (response.status !== 200) {
+        throw new Error('Failed to delete artifact')
+      }
     }
 
     this.isDeleted = true

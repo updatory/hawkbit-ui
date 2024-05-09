@@ -4,7 +4,7 @@ import { isBlank } from '@/utils/Validation'
 import Artifact from '@/models/Artifact'
 import { removeItem } from '@/utils/Array'
 import { notifyUpdateRef } from '@/utils/notifyUpdateRef'
-import type ModuleProperty from '@/models/ModuleProperty'
+import ModuleProperty from '@/models/ModuleProperty'
 import type { Optional } from '@/utils/Types'
 import AbstractModel from '@/models/AbstractModel'
 
@@ -14,7 +14,6 @@ export default class Module extends AbstractModel {
   private readonly _type: Ref<Optional<string>>
   private readonly _vendor: Ref<Optional<string>>
   private readonly _description: Ref<Optional<string>>
-  private readonly _encrypted: Ref<boolean>
   private readonly _createdAt: Ref<Optional<number>>
 
   private readonly _artifacts: Artifact[]
@@ -34,7 +33,6 @@ export default class Module extends AbstractModel {
     type,
     vendor,
     description,
-    encrypted,
     createdAt,
     artifacts,
     properties
@@ -45,7 +43,6 @@ export default class Module extends AbstractModel {
     type?: string
     vendor?: string
     description?: string
-    encrypted?: boolean
     createdAt?: number
     artifacts?: Artifact[]
     properties?: ModuleProperty[]
@@ -57,7 +54,6 @@ export default class Module extends AbstractModel {
     this._name = shallowRef(name)
     this._version = shallowRef(version)
     this._type = shallowRef(type)
-    this._encrypted = shallowRef(encrypted || false)
     this._vendor = notifyUpdateRef(vendor, onUpdate)
     this._description = notifyUpdateRef(description, onUpdate)
     this._createdAt = shallowRef(createdAt)
@@ -114,14 +110,6 @@ export default class Module extends AbstractModel {
     this._description.value = value
   }
 
-  get encrypted(): boolean {
-    return this._encrypted.value
-  }
-
-  set encrypted(value: boolean) {
-    this._encrypted.value = value
-  }
-
   get createdAt(): Optional<number> {
     return this._createdAt.value
   }
@@ -142,7 +130,7 @@ export default class Module extends AbstractModel {
     return this._nameError.value
   }
 
-  private set nameError(value: string) {
+  private set nameError(value: Optional<string>) {
     this._nameError.value = value
   }
 
@@ -150,7 +138,7 @@ export default class Module extends AbstractModel {
     return this._typeError.value
   }
 
-  private set typeError(value: string) {
+  private set typeError(value: Optional<string>) {
     this._typeError.value = value
   }
 
@@ -158,7 +146,7 @@ export default class Module extends AbstractModel {
     return this._versionError.value
   }
 
-  private set versionError(value: string) {
+  private set versionError(value: Optional<string>) {
     this._versionError.value = value
   }
 
@@ -185,6 +173,10 @@ export default class Module extends AbstractModel {
 
     const requiredMessage = 'Required'
 
+    this.nameError = undefined
+    this.typeError = undefined
+    this.versionError = undefined
+
     if (isBlank(this.name)) {
       this.nameError = requiredMessage
       isValid = false
@@ -198,6 +190,10 @@ export default class Module extends AbstractModel {
       isValid = false
     }
 
+    for (const property of this.properties) {
+      isValid = (await property.validate()) ? isValid : false
+    }
+
     return isValid
   }
 
@@ -209,7 +205,6 @@ export default class Module extends AbstractModel {
         type: this.type,
         vendor: this.vendor,
         description: this.description,
-        // encrypted: this.encrypted.value
         encrypted: false
       }
     ])
@@ -274,12 +269,12 @@ export default class Module extends AbstractModel {
       }
     }
 
-    for (const artifact of this.artifacts) {
-      await artifact.save(this.id!)
-    }
-
     for (const property of this.properties) {
       await property.save(this.id!)
+    }
+
+    for (const artifact of this.artifacts) {
+      await artifact.save(this.id!)
     }
   }
 
@@ -293,6 +288,7 @@ export default class Module extends AbstractModel {
     const result = await response.json()
 
     const artifacts = await Artifact.getAll(id)
+    const properties = await ModuleProperty.getAll(id)
 
     return new Module({
       id: result.id,
@@ -301,9 +297,9 @@ export default class Module extends AbstractModel {
       type: result.type,
       vendor: result.vendor,
       description: result.description,
-      encrypted: result.encrypted,
       createdAt: result.createdAt,
-      artifacts
+      artifacts,
+      properties
     })
   }
 
@@ -325,7 +321,6 @@ export default class Module extends AbstractModel {
           type: result.type,
           vendor: result.vendor,
           description: result.description,
-          encrypted: result.encrypted,
           createdAt: result.createdAt
         })
     )

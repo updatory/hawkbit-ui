@@ -44,13 +44,6 @@
               <FormInput label="Vendor" v-model="state.module.vendor" />
             </div>
 
-            <div class="col-span-full flex flex-row items-center justify-start gap-2">
-              <FormSwitch :disabled="!state.module.isNew" />
-              <span class="text-sm text-gray-500 ms-3 dark:text-gray-400"
-                >Enable files encryption</span
-              >
-            </div>
-
             <div class="space-y-2 col-span-full">
               <FormTextArea label="Description" v-model="state.module.description" />
             </div>
@@ -60,10 +53,38 @@
             </div>
 
             <div class="space-y-2 col-span-full">
-              <FormProperty
+              <div
                 v-for="property in state.module.properties"
                 :key="property.instanceId"
-              />
+                class="flex flex-row items-center justify-between gap-3"
+              >
+                <FormInput
+                  class="flex-grow"
+                  label="Key"
+                  v-model="property.key"
+                  :error="property.keyError"
+                  required
+                />
+                <FormInput
+                  class="flex-grow"
+                  label="Value"
+                  v-model="property.value"
+                  :error="property.valueError"
+                  required
+                />
+                <FormIconSwitch v-model="property.targetVisible">
+                  <template #off>
+                    <PrivateIcon class="flex-shrink-0 size-4" />
+                  </template>
+                  <template #on>
+                    <PublicIcon class="flex-shrink-0 size-4" />
+                  </template>
+                </FormIconSwitch>
+                <SecondaryLinkButton
+                  @click="onRemoveProperty(property as ModuleProperty)"
+                  label="Delete"
+                />
+              </div>
             </div>
 
             <div class="col-span-full">
@@ -106,11 +127,9 @@ import { useRoute } from 'vue-router'
 import PrimaryButton from '@/components/PrimaryButton.vue'
 import PageSkeleton from '@/components/PageSkeleton.vue'
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
-import FormProperty from '@/components/FormProperty.vue'
 import UploadArea from '@/components/UploadArea.vue'
 import FormSelect, { type Option } from '@/components/FormSelect.vue'
 import ArtifactCard from '@/components/ArtifactCard.vue'
-import FormSwitch from '@/components/FormSwitch.vue'
 import SecondaryLinkButton from '@/components/SecondaryLinkButton.vue'
 import PlusCircleIcon from '@/icons/PlusCircleIcon.vue'
 import FormTextArea from '@/components/FormTextArea.vue'
@@ -122,6 +141,9 @@ import Module from '@/models/Module'
 import Artifact from '@/models/Artifact'
 import ModuleType from '@/models/ModuleType'
 import ModuleProperty from '@/models/ModuleProperty'
+import FormIconSwitch from '@/components/FormIconSwitch.vue'
+import PublicIcon from '@/icons/PublicIcon.vue'
+import PrivateIcon from '@/icons/PrivateIcon.vue'
 
 // const router = useRouter()
 const route = useRoute()
@@ -188,5 +210,9 @@ const onSaveClicked = async () => {
 
 const onAddProperty = () => {
   state.module.addProperty(new ModuleProperty({}))
+}
+
+const onRemoveProperty = (property: ModuleProperty) => {
+  state.module.removeProperty(property)
 }
 </script>

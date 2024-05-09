@@ -38,8 +38,15 @@ export default class ModuleProperty extends AbstractModel {
   }
 
   set key(value: string) {
-    this.id = value
     this._key.value = value
+  }
+
+  private get originalKey(): Optional<string> {
+    return this.id
+  }
+
+  private set originalKey(value: Optional<string>) {
+    this.id = value
   }
 
   get value(): Optional<string> {
@@ -62,7 +69,7 @@ export default class ModuleProperty extends AbstractModel {
     return this._keyError.value
   }
 
-  private set keyError(value: string) {
+  private set keyError(value: Optional<string>) {
     this._keyError.value = value
   }
 
@@ -70,7 +77,7 @@ export default class ModuleProperty extends AbstractModel {
     return this._valueError.value
   }
 
-  private set valueError(value: string) {
+  private set valueError(value: Optional<string>) {
     this._valueError.value = value
   }
 
@@ -82,6 +89,9 @@ export default class ModuleProperty extends AbstractModel {
     let isValid = true
 
     const requiredMessage = 'Required'
+
+    this.keyError = undefined
+    this.valueError = undefined
 
     if (!this.key) {
       this.keyError = requiredMessage
@@ -97,33 +107,51 @@ export default class ModuleProperty extends AbstractModel {
   }
 
   async save(moduleId: string): Promise<void> {
+    if (this.isDeleted) {
+      throw new Error("Can't save deleted property")
+    }
+
     if (this.isNew) {
       await this.create(moduleId)
-    } else if (this.isUpdated) {
-      await this.delete(moduleId)
+    } else if (this.isUpdated && this.originalKey === this.key) {
+      await this.update(moduleId)
+    } else if (this.isUpdated && this.originalKey !== this.key) {
+      // Create first and delete after to change has been made
       await this.create(moduleId)
+      await this.delete(moduleId)
     }
+
+    this.isNew = false
+    this.isUpdated = false
+    this.isDeleted = false
+
+    this.originalKey = this.key
   }
 
   async delete(moduleId: string): Promise<void> {
-    const propertyKey = this.key
-    const response = await fetch(`/rest/v1/softwaremodules/${moduleId}/metadata/${propertyKey}`, {
-      method: 'DELETE'
-    })
+    if (!this.isNew && !this.isDeleted) {
+      const key = this.originalKey
 
-    if (response.status !== 200) {
-      throw new Error('Failed to delete property')
+      const response = await fetch(`/rest/v1/softwaremodules/${moduleId}/metadata/${key}`, {
+        method: 'DELETE'
+      })
+
+      if (response.status !== 200) {
+        throw new Error('Failed to delete property')
+      }
     }
 
     this.isDeleted = true
   }
 
   private async create(moduleId: string): Promise<void> {
-    const body = JSON.stringify({
-      key: this.key,
-      value: this.value,
-      targetVisible: this.targetVisible
-    })
+    const body = JSON.stringify([
+      {
+        key: this.key,
+        value: this.value,
+        targetVisible: this.targetVisible
+      }
+    ])
 
     const response = await fetch(`/rest/v1/softwaremodules/${moduleId}/metadata`, {
       method: 'POST',
@@ -134,9 +162,54 @@ export default class ModuleProperty extends AbstractModel {
     })
 
     if (response.status !== 200 && response.status !== 201) {
-      throw new Error('Failed to create property')
+      const message = await response.json()
+
+      if (message.errorCode === 'hawkbit.server.error.repo.entitiyAlreayExists') {
+        this.keyError = 'Not unique'
+        throw new Error('Property already exists with the same key')
+      } else {
+        throw new Error('Failed to create property')
+      }
+    }
+  }
+
+  private async update(moduleId: string): Promise<void> {
+    const key = this.originalKey
+
+    const body = JSON.stringify({
+      value: this.value,
+      targetVisible: this.targetVisible
+    })
+
+    const response = await fetch(`/rest/v1/softwaremodules/${moduleId}/metadata/${key}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body
+    })
+
+    if (response.status !== 200) {
+      throw new Error('Failed to update property')
+    }
+  }
+
+  static async getAll(moduleId: string): Promise<ModuleProperty[]> {
+    const response = await fetch(`/rest/v1/softwaremodules/${moduleId}/metadata`)
+
+    if (response.status !== 200) {
+      throw new Error('Failed to get modules')
     }
 
-    this.isNew = false
+    const results = (await response.json()).content
+
+    return results.map(
+      (result: any) =>
+        new ModuleProperty({
+          key: result.key,
+          value: result.value,
+          targetVisible: result.targetVisible
+        })
+    )
   }
 }
