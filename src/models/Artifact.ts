@@ -29,7 +29,7 @@ export default class Artifact extends AbstractModel {
     this._fileSize = shallowRef(fileSize)
 
     this._uploadProgress = shallowRef(0)
-    this._uploadState = shallowRef(UploadState.Idle)
+    this._uploadState = shallowRef(this.isNew ? UploadState.Idle : UploadState.Completed)
 
     this.file = file
   }
@@ -80,6 +80,9 @@ export default class Artifact extends AbstractModel {
 
         xhr.onload = () => {
           if (xhr.status === 200 || xhr.status === 201) {
+            const message = JSON.parse(xhr.responseText)
+            this.id = message.id
+
             this.uploadProgress = 100
             this.uploadState = UploadState.Completed
             this.isNew = false
