@@ -44,3 +44,11 @@ npm run build
 ```sh
 npm run lint
 ```
+
+## Test with hawkBit
+
+```sh
+docker-compose up -d
+```
+
+...and go to [http://localhost:8080](http://localhost:8080)
