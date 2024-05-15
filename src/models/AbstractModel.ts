@@ -60,4 +60,8 @@ export default class AbstractModel extends ShallowModel {
   async validate(): Promise<boolean> {
     return true
   }
+
+  protected onUpdate(): void {
+    this.isUpdated = true
+  }
 }

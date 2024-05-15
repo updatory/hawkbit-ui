@@ -66,10 +66,6 @@ export default class Module extends AbstractModel {
     this._versionError = shallowRef(undefined)
   }
 
-  private onUpdate(): void {
-    this.isUpdated = true
-  }
-
   get name(): Optional<string> {
     return this._name.value
   }
@@ -244,6 +240,8 @@ export default class Module extends AbstractModel {
     if (response.status !== 200 && response.status !== 201) {
       throw new Error('Failed to update module')
     }
+
+    this.isUpdated = false
   }
 
   async save(): Promise<void> {

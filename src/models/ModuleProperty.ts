@@ -81,10 +81,6 @@ export default class ModuleProperty extends AbstractModel {
     this._valueError.value = value
   }
 
-  private onUpdate(): void {
-    this.isUpdated = true
-  }
-
   async validate(): Promise<boolean> {
     let isValid = true
 
