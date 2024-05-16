@@ -1,7 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import RolloutsView from '@/views/RolloutsView.vue'
 import ModulesView from '@/views/ModulesView.vue'
-import TargetsView from '@/views/TargetsView.vue'
 import DistributionsView from '@/views/DistributionsView.vue'
 import ModuleFormView from '@/views/ModuleFormView.vue'
 
@@ -11,14 +9,14 @@ const router = createRouter({
     {
       path: '/',
       redirect: {
-        name: 'rollouts'
+        name: 'modules'
       }
     },
-    {
-      path: '/rollouts',
-      name: 'rollouts',
-      component: RolloutsView
-    },
+    // {
+    //   path: '/rollouts',
+    //   name: 'rollouts',
+    //   component: RolloutsView
+    // },
     {
       path: '/distributions',
       name: 'distributions',
@@ -31,11 +29,11 @@ const router = createRouter({
     //     backRouteName: 'distributions'
     //   }
     // },
-    {
-      path: '/targets',
-      name: 'targets',
-      component: TargetsView
-    },
+    // {
+    //   path: '/targets',
+    //   name: 'targets',
+    //   component: TargetsView
+    // },
     {
       path: '/modules/new',
       component: ModuleFormView,

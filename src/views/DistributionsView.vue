@@ -4,7 +4,7 @@
       <template #title>
         <div class="flex flex-row items-center justify-start gap-2">
           <h3 class="text-xl dark:text-white">Distributions</h3>
-          <Badge>21</Badge>
+          <Badge>{{ state.distributions.length }}</Badge>
         </div>
       </template>
       <template #toolbar>
@@ -30,20 +30,36 @@
         </div>
       </template>
       <template #content>
-        <DataTable :schema="schema" :records="records" />
+        <DataTable>
+          <template #header>
+            <DataTableHeaderRow>
+              <DataTableHeaderCell>Name</DataTableHeaderCell>
+              <DataTableHeaderCell>Version</DataTableHeaderCell>
+              <DataTableHeaderCell>Created At</DataTableHeaderCell>
+            </DataTableHeaderRow>
+          </template>
+          <template #body>
+            <template v-for="distribution in state.distributions" :key="distribution.instanceId">
+              <DataTableBodyRow
+                v-on:click.stop="onDistributionClicked(distribution as Distribution)"
+              >
+                <DataTableBodyCell>{{ distribution.name }}</DataTableBodyCell>
+                <DataTableBodyCell>{{ distribution.version }}</DataTableBodyCell>
+                <DataTableBodyCell>{{ distribution.createdAt }}</DataTableBodyCell>
+              </DataTableBodyRow>
+            </template>
+          </template>
+        </DataTable>
       </template>
     </PageSkeleton>
   </div>
 </template>
 
 <script setup lang="ts">
-import DataTable from '@/components/DataTable.vue'
 import PrimaryButton from '@/components/PrimaryButton.vue'
 import PlusIcon from '@/icons/PlusIcon.vue'
-import DataTableFieldType from '@/models/DataTableFieldType'
-import { computed, inject, onMounted, ref } from 'vue'
-import type Distribution from '@/models/Distribution'
-import type DistributionService from '@/services/DistributionService'
+import { onMounted, reactive } from 'vue'
+import Distribution from '@/models/Distribution'
 import { useRouter } from 'vue-router'
 import SecondaryButton from '@/components/SecondaryButton.vue'
 import SortIcon from '@/icons/SortIcon.vue'
@@ -51,41 +67,27 @@ import Badge from '@/components/Badge.vue'
 import SearchInput from '@/components/SearchInput.vue'
 import FilterIcon from '@/icons/FilterIcon.vue'
 import PageSkeleton from '@/components/PageSkeleton.vue'
+import DataTableHeaderCell from '@/components/DataTableHeaderCell.vue'
+import DataTableBodyCell from '@/components/DataTableBodyCell.vue'
+import DataTable from '@/components/DataTable.vue'
+import DataTableBodyRow from '@/components/DataTableBodyRow.vue'
+import DataTableHeaderRow from '@/components/DataTableHeaderRow.vue'
 
-const distributionService = inject('distributionService') as DistributionService
-
-const distributions = ref<Distribution[]>([])
-
-onMounted(() => {
-  distributionService.getAll().then(data => {
-    distributions.value = data
-  })
+const state = reactive({
+  distributions: [] as Distribution[]
 })
 
-const schema = {
-  fields: [
-    { name: 'name', title: 'Name', type: DataTableFieldType.Text },
-    { name: 'version', title: 'Version', type: DataTableFieldType.Text },
-    { name: 'createdAt', title: 'Created At', type: DataTableFieldType.Date },
-  ],
-};
-
-const records = computed(() => {
-  return distributions.value.map((distribution) => {
-    return {
-      id: distribution.id,
-      values: [
-        distribution.name,
-        distribution.version,
-        distribution.createdAt
-      ]
-    }
-  })
+onMounted(async () => {
+  state.distributions = await Distribution.getAll()
 })
 
 const router = useRouter()
 
 const onNewDistributionClicked = () => {
   router.push('/distributions/new')
+}
+
+const onDistributionClicked = (distribution: Distribution) => {
+  router.push(`/distributions/${distribution.id}/edit`)
 }
 </script>

@@ -145,7 +145,6 @@ import FormIconSwitch from '@/components/FormIconSwitch.vue'
 import PublicIcon from '@/icons/PublicIcon.vue'
 import PrivateIcon from '@/icons/PrivateIcon.vue'
 
-// const router = useRouter()
 const route = useRoute()
 
 const props = defineProps({
@@ -204,7 +203,6 @@ const onArtifactCardDeleteClicked = async (event: ArtifactCardDeleteClicked) => 
 const onSaveClicked = async () => {
   if (await state.module.validate()) {
     await state.module.save()
-    console.log('==> saved')
   }
 }
 
