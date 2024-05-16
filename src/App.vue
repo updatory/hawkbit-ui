@@ -16,7 +16,7 @@ authenticate().then((user) => {
   <AuthLoader v-if="!userInfo" />
   <template v-if="userInfo">
     <SideBar />
-    <div v-if="userInfo" class="w-full bg-gray-100 h-full">
+    <div v-if="userInfo" class="w-full h-full">
       <RouterView />
     </div>
   </template>
