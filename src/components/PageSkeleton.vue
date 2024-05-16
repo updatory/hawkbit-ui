@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full lg:ps-64 lg:max-w-screen-xl border-r h-dvh bg-white">
+  <div class="w-full lg:ps-64 lg:max-w-screen-xl border-r min-h-dvh bg-white">
     <PageHeader :title="props.title" :back-route-name="props.backRouteName">
       <template #title>
         <slot name="title"></slot>
@@ -20,6 +20,6 @@ import PageHeader from '@/components/PageHeader.vue'
 
 const props = defineProps({
   title: { type: String, required: true },
-  backRouteName: { type: String, required: false },
+  backRouteName: { type: String, required: false }
 })
 </script>
