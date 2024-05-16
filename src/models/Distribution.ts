@@ -181,18 +181,12 @@ export default class Distribution extends AbstractModel {
   }
 
   private async create(): Promise<void> {
-    if (!(await this.validate())) {
-      throw new Error('Distribution is not valid')
-    }
-
     const body = JSON.stringify([
       {
         name: this.name,
         version: this.version,
         type: this.type,
         description: this.description,
-        locked: false, // it should unlocked on rollout
-        requiredMigrationStep: false,
         modules: this.modules.map((module) => {
           module.id
         })
@@ -218,10 +212,6 @@ export default class Distribution extends AbstractModel {
   }
 
   private async update(): Promise<void> {
-    if (!(await this.validate())) {
-      throw new Error('Distribution is not valid')
-    }
-
     const body = JSON.stringify({
       description: this.description
     })
@@ -287,6 +277,14 @@ export default class Distribution extends AbstractModel {
   }
 
   async save(): Promise<void> {
+    if (this.isDeleted) {
+      throw new Error("Can't save deleted distribution")
+    }
+
+    if (!(await this.validate())) {
+      throw new Error('Distribution is not valid')
+    }
+
     if (this.isNew) {
       await this.create()
     } else if (this.isUpdated) {
@@ -294,6 +292,22 @@ export default class Distribution extends AbstractModel {
       await this.processModuleDeleteQueue()
       await this.processModuleAddQueue()
     }
+  }
+
+  async delete(): Promise<void> {
+    if (this.isDeleted) {
+      return
+    }
+
+    const response = await fetch(`/rest/v1/distributionsets/${this.id}`, {
+      method: 'DELETE'
+    })
+
+    if (response.status !== 200) {
+      throw new Error('Failed to delete distribution')
+    }
+
+    this.isDeleted = true
   }
 
   static async getById(id: string): Promise<Distribution> {

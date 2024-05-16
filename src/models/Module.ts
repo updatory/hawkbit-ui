@@ -245,6 +245,14 @@ export default class Module extends AbstractModel {
   }
 
   async save(): Promise<void> {
+    if (this.isDeleted) {
+      throw new Error("Can't save deleted module")
+    }
+
+    if (!(await this.validate())) {
+      throw new Error('Module is not valid')
+    }
+
     if (this.isNew) {
       await this.create()
     } else if (this.isUpdated) {
@@ -274,6 +282,22 @@ export default class Module extends AbstractModel {
     for (const artifact of this.artifacts) {
       await artifact.save(this.id!)
     }
+  }
+
+  async delete(): Promise<void> {
+    if (this.isDeleted) {
+      return
+    }
+
+    const response = await fetch(`/rest/v1/softwaremodules/${this.id}`, {
+      method: 'DELETE'
+    })
+
+    if (response.status !== 200) {
+      throw new Error('Failed to delete target filter')
+    }
+
+    this.isDeleted = true
   }
 
   static async getById(id: string): Promise<Module> {
