@@ -5,7 +5,7 @@ import { shallowReactive, shallowRef } from 'vue'
 import { notifyUpdateRef } from '@/utils/notifyUpdateRef'
 import { isBlank } from '@/utils/Validation'
 import Module from '@/models/Module'
-import { removeItem } from '@/utils/Array'
+import { removeItem } from '@/utils/Arrays'
 
 export default class Distribution extends AbstractModel {
   private readonly _name: Ref<Optional<string>>
