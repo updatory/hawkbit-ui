@@ -115,9 +115,12 @@
             </div>
           </div>
           <!-- End Grid -->
+
+          <div class="flex justify-end py-3">
+            <PrimaryButton class="" label="Save" @click.stop="onSaveClicked" />
+          </div>
         </div>
       </form>
-      <PrimaryButton label="Save" @click.stop="onSaveClicked" />
     </template>
   </PageSkeleton>
 </template>
