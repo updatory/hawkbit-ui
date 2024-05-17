@@ -43,7 +43,7 @@
               <TargetFilterCard
                 v-if="state.rollout.targetFilter"
                 :target-filter="state.rollout.targetFilter as TargetFilter"
-                class="h-20"
+                class="h-20 border-blue-600"
               >
                 <template #actions>
                   <SecondaryLinkButton label="Delete" @click.stop="onTargetFilterDeleted" />
@@ -76,7 +76,7 @@
               <DistributionCard
                 v-if="state.rollout.distribution"
                 :distribution="state.rollout.distribution as Distribution"
-                class="h-20"
+                class="h-20 border-blue-600"
               >
                 <template #actions>
                   <SecondaryLinkButton label="Delete" @click.stop="onDistributionDeleted" />

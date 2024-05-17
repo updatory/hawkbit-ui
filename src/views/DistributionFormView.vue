@@ -40,7 +40,7 @@
               v-for="module in state.distribution.modules as Module[]"
               :key="module.instanceId"
             >
-              <ModuleCard :module="module" class="h-20">
+              <ModuleCard :module="module" class="h-20 border-blue-600">
                 <template #actions>
                   <SecondaryLinkButton label="Delete" @click.stop="onModuleRemoved(module)" />
                 </template>
