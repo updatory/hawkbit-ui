@@ -10,25 +10,19 @@ import { removeItem } from '@/utils/Arrays'
 export default class Distribution extends AbstractModel {
   private readonly _name: Ref<Optional<string>>
   private readonly _version: Ref<Optional<string>>
-  private readonly _type: Ref<Optional<string>>
   private readonly _description: Ref<Optional<string>>
   private readonly _createdAt: Ref<Optional<number>>
 
   private readonly _modules: Module[]
 
   private readonly _nameError: Ref<Optional<string>>
-  private readonly _typeError: Ref<Optional<string>>
   private readonly _versionError: Ref<Optional<string>>
   private readonly _modulesError: Ref<Optional<string>>
-
-  private moduleAddQueue: Module[] = []
-  private moduleDeleteQueue: Module[] = []
 
   constructor({
     id,
     name,
     version,
-    type,
     description,
     createdAt,
     modules
@@ -36,7 +30,6 @@ export default class Distribution extends AbstractModel {
     id?: string
     name?: string
     version?: string
-    type?: string
     vendor?: string
     description?: string
     createdAt?: number
@@ -48,14 +41,12 @@ export default class Distribution extends AbstractModel {
 
     this._name = shallowRef(name)
     this._version = shallowRef(version)
-    this._type = shallowRef(type)
     this._description = notifyUpdateRef(description, onUpdate)
     this._createdAt = shallowRef(createdAt)
 
     this._modules = shallowReactive(modules || [])
 
     this._nameError = shallowRef(undefined)
-    this._typeError = shallowRef(undefined)
     this._versionError = shallowRef(undefined)
     this._modulesError = shallowRef(undefined)
   }
@@ -74,14 +65,6 @@ export default class Distribution extends AbstractModel {
 
   set version(value: string) {
     this._version.value = value
-  }
-
-  get type(): Optional<string> {
-    return this._type.value
-  }
-
-  set type(value: string) {
-    this._type.value = value
   }
 
   get description(): Optional<string> {
@@ -112,14 +95,6 @@ export default class Distribution extends AbstractModel {
     this._nameError.value = value
   }
 
-  get typeError(): Optional<string> {
-    return this._typeError.value
-  }
-
-  private set typeError(value: Optional<string>) {
-    this._typeError.value = value
-  }
-
   get versionError(): Optional<string> {
     return this._versionError.value
   }
@@ -137,18 +112,19 @@ export default class Distribution extends AbstractModel {
   }
 
   addModule(module: Module): void {
-    if (!this.isNew) {
-      this.moduleAddQueue.push(module)
+    for (const existingModule of this.modules) {
+      if (existingModule.id === module.id) {
+        return
+      }
     }
+
     this.modules.push(module)
+    this.isUpdated = true
   }
 
   removeModule(module: Module): void {
-    if (!this.isNew) {
-      this.moduleDeleteQueue.push(module)
-    }
-
     removeItem(this.modules, module)
+    this.isUpdated = true
   }
 
   async validate(): Promise<boolean> {
@@ -157,15 +133,11 @@ export default class Distribution extends AbstractModel {
     const requiredMessage = 'Required'
 
     this.nameError = undefined
-    this.typeError = undefined
     this.versionError = undefined
+    this.modulesError = undefined
 
     if (isBlank(this.name)) {
       this.nameError = requiredMessage
-      isValid = false
-    }
-    if (isBlank(this.type)) {
-      this.typeError = requiredMessage
       isValid = false
     }
     if (isBlank(this.version)) {
@@ -185,10 +157,10 @@ export default class Distribution extends AbstractModel {
       {
         name: this.name,
         version: this.version,
-        type: this.type,
+        type: 'os_app',
         description: this.description,
         modules: this.modules.map((module) => {
-          module.id
+          return { id: module.id }
         })
       }
     ])
@@ -208,7 +180,6 @@ export default class Distribution extends AbstractModel {
     const results = await response.json()
 
     this.id = results[0].id
-    this.isNew = false
   }
 
   private async update(): Promise<void> {
@@ -227,14 +198,12 @@ export default class Distribution extends AbstractModel {
     if (response.status !== 200) {
       throw new Error('Failed to update distribution')
     }
-
-    this.isUpdated = false
   }
 
-  private async processModuleAddQueue(): Promise<void> {
+  private async updateModules(): Promise<void> {
     const body = JSON.stringify(
-      this.moduleAddQueue.map((module) => {
-        module.id
+      this.modules.map((module) => {
+        return { id: module.id }
       })
     )
 
@@ -249,31 +218,6 @@ export default class Distribution extends AbstractModel {
     if (response.status !== 200) {
       throw new Error('Failed to add module assignments')
     }
-
-    this.moduleAddQueue = []
-  }
-
-  private async processModuleDeleteQueue(): Promise<void> {
-    while (this.moduleDeleteQueue.length > 0) {
-      const module = this.moduleDeleteQueue[0]
-      if (module) {
-        const response = await fetch(
-          `/rest/v1/distributionsets/${this.id}/assignedSM/${module.id}`,
-          {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          }
-        )
-
-        if (response.status !== 200) {
-          throw new Error('Failed to delete module assignment')
-        }
-
-        this.moduleDeleteQueue.shift()
-      }
-    }
   }
 
   async save(): Promise<void> {
@@ -287,10 +231,12 @@ export default class Distribution extends AbstractModel {
 
     if (this.isNew) {
       await this.create()
+      this.isNew = false
+      this.isUpdated = false
     } else if (this.isUpdated) {
       await this.update()
-      await this.processModuleDeleteQueue()
-      await this.processModuleAddQueue()
+      await this.updateModules()
+      this.isUpdated = false
     }
   }
 
@@ -319,13 +265,15 @@ export default class Distribution extends AbstractModel {
 
     const result = await response.json()
 
-    const modules = result.modules.map(({ id }: { id: string }) => Module.getById(id))
+    const modules = []
+    for (const { id } of result.modules) {
+      modules.push(await Module.getById(id))
+    }
 
     return new Distribution({
       id: result.id,
       name: result.name,
       version: result.version,
-      type: result.type,
       vendor: result.vendor,
       description: result.description,
       createdAt: result.createdAt,
@@ -348,7 +296,6 @@ export default class Distribution extends AbstractModel {
           id: result.id,
           name: result.name,
           version: result.version,
-          type: result.type,
           vendor: result.vendor,
           description: result.description,
           createdAt: result.createdAt

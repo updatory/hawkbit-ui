@@ -2,18 +2,37 @@ import type { Ref } from 'vue'
 import type { Optional } from '@/utils/Types'
 import AbstractModel from '@/models/AbstractModel'
 import { notifyUpdateRef } from '@/utils/notifyUpdateRef'
+import { shallowRef } from 'vue'
 
 export default class TargetFilter extends AbstractModel {
   private readonly _name: Ref<Optional<string>>
   private readonly _query: Ref<Optional<string>>
+  private readonly _createdAt: Ref<Optional<number>>
 
-  constructor({ id, name, query }: { id?: string; name?: string; query?: string }) {
+  private readonly _nameError: Ref<Optional<string>>
+  private readonly _queryError: Ref<Optional<string>>
+
+  constructor({
+    id,
+    name,
+    query,
+    createdAt
+  }: {
+    id?: string
+    name?: string
+    query?: string
+    createdAt?: number
+  }) {
     super(id)
 
     const onUpdate = this.onUpdate.bind(this)
 
     this._name = notifyUpdateRef(name, onUpdate)
     this._query = notifyUpdateRef(query, onUpdate)
+    this._createdAt = shallowRef(createdAt)
+
+    this._nameError = shallowRef(undefined)
+    this._queryError = shallowRef(undefined)
   }
 
   get name(): Optional<string> {
@@ -30,6 +49,50 @@ export default class TargetFilter extends AbstractModel {
 
   set query(value: Optional<string>) {
     this._query.value = value
+  }
+
+  get createdAt(): Optional<number> {
+    return this._createdAt.value
+  }
+
+  private set createdAt(value: Optional<number>) {
+    this._createdAt.value = value
+  }
+
+  get nameError(): Optional<string> {
+    return this._nameError.value
+  }
+
+  private set nameError(value: Optional<string>) {
+    this._nameError.value = value
+  }
+
+  get queryError(): Optional<string> {
+    return this._queryError.value
+  }
+
+  private set queryError(value: Optional<string>) {
+    this._queryError.value = value
+  }
+
+  async validate(): Promise<boolean> {
+    let isValid = true
+
+    const requiredMessage = 'Required'
+
+    this.nameError = undefined
+    this.queryError = undefined
+
+    if (!this.name) {
+      this.nameError = requiredMessage
+      isValid = false
+    }
+    if (!this.query) {
+      this.queryError = requiredMessage
+      isValid = false
+    }
+
+    return isValid
   }
 
   async save(): Promise<void> {
@@ -78,7 +141,7 @@ export default class TargetFilter extends AbstractModel {
       body
     })
 
-    if (response.status !== 200) {
+    if (response.status !== 201) {
       throw new Error('Failed to update target filter')
     }
 
@@ -86,12 +149,10 @@ export default class TargetFilter extends AbstractModel {
   }
 
   private async create(): Promise<void> {
-    const body = JSON.stringify([
-      {
-        name: this.name,
-        query: this.query
-      }
-    ])
+    const body = JSON.stringify({
+      name: this.name,
+      query: this.query
+    })
 
     const response = await fetch('/rest/v1/targetfilters', {
       method: 'POST',
@@ -102,12 +163,18 @@ export default class TargetFilter extends AbstractModel {
     })
 
     if (response.status !== 201) {
+      if (response.status === 400) {
+        const error = await response.json()
+        if (error.errorCode === 'hawkbit.server.error.rest.param.rsqlParamSyntax') {
+          this.queryError = 'Invalid syntax'
+        }
+      }
       throw new Error('Failed to create target filter')
     }
 
-    const results = await response.json()
+    const result = await response.json()
 
-    this.id = results[0].id
+    this.id = result.id
     this.isNew = false
   }
 
@@ -123,7 +190,8 @@ export default class TargetFilter extends AbstractModel {
     return new TargetFilter({
       id: result.id,
       name: result.name,
-      query: result.query
+      query: result.query,
+      createdAt: result.createdAt
     })
   }
 
@@ -141,7 +209,8 @@ export default class TargetFilter extends AbstractModel {
         new TargetFilter({
           id: result.id,
           name: result.name,
-          query: result.query
+          query: result.query,
+          createdAt: result.createdAt
         })
     )
   }

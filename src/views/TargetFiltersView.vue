@@ -1,10 +1,10 @@
 <template>
   <div class="flex flex-row justify-start">
-    <PageSkeleton title="Distributions">
+    <PageSkeleton title="Target Filters">
       <template #title>
         <div class="flex flex-row items-center justify-start gap-2">
-          <h3 class="text-xl dark:text-white">Distributions</h3>
-          <Badge>{{ state.distributions.length }}</Badge>
+          <h3 class="text-xl dark:text-white">Target Filters</h3>
+          <Badge>{{ state.targetFilters.length }}</Badge>
         </div>
       </template>
       <template #toolbar>
@@ -21,7 +21,7 @@
                 <FilterIcon />
               </template>
             </SecondaryButton>
-            <PrimaryButton label="New distribution" @click.stop="onNewDistributionClicked">
+            <PrimaryButton label="New filter" @click.stop="onNewTargetClicked">
               <template #icon>
                 <PlusIcon />
               </template>
@@ -34,59 +34,62 @@
           <template #header>
             <DataTableHeaderRow>
               <DataTableHeaderCell>Name</DataTableHeaderCell>
-              <DataTableHeaderCell>Version</DataTableHeaderCell>
               <DataTableHeaderCell>Created At</DataTableHeaderCell>
             </DataTableHeaderRow>
           </template>
           <template #body>
-            <template v-for="distribution in state.distributions" :key="distribution.instanceId">
-              <DataTableBodyRow @click="onDistributionClicked(distribution as Distribution)">
-                <DataTableBodyCell>{{ distribution.name }}</DataTableBodyCell>
-                <DataTableBodyCell>{{ distribution.version }}</DataTableBodyCell>
-                <DataTableBodyCell><DateTime :value="distribution.createdAt" /></DataTableBodyCell>
+            <template v-for="targetFilter in state.targetFilters" :key="targetFilter.instanceId">
+              <DataTableBodyRow v-on:click="onTargetFilterClicked(targetFilter as TargetFilter)">
+                <DataTableBodyCell highlight>{{ targetFilter.name }}</DataTableBodyCell>
+                <DataTableBodyCell last
+                  ><DateTime :value="targetFilter.createdAt!" />
+                </DataTableBodyCell>
               </DataTableBodyRow>
             </template>
           </template>
         </DataTable>
       </template>
     </PageSkeleton>
+    <router-view />
   </div>
 </template>
 
 <script setup lang="ts">
 import PrimaryButton from '@/components/PrimaryButton.vue'
 import PlusIcon from '@/icons/PlusIcon.vue'
-import { onMounted, reactive } from 'vue'
-import Distribution from '@/models/Distribution'
 import { useRouter } from 'vue-router'
+import { onMounted, reactive } from 'vue'
+import PageSkeleton from '@/components/PageSkeleton.vue'
+import SearchInput from '@/components/SearchInput.vue'
 import SecondaryButton from '@/components/SecondaryButton.vue'
+import FilterIcon from '@/icons/FilterIcon.vue'
 import SortIcon from '@/icons/SortIcon.vue'
 import Badge from '@/components/Badge.vue'
-import SearchInput from '@/components/SearchInput.vue'
-import FilterIcon from '@/icons/FilterIcon.vue'
-import PageSkeleton from '@/components/PageSkeleton.vue'
+import DataTableHeaderRow from '@/components/DataTableHeaderRow.vue'
 import DataTableHeaderCell from '@/components/DataTableHeaderCell.vue'
 import DataTableBodyCell from '@/components/DataTableBodyCell.vue'
 import DataTable from '@/components/DataTable.vue'
 import DataTableBodyRow from '@/components/DataTableBodyRow.vue'
-import DataTableHeaderRow from '@/components/DataTableHeaderRow.vue'
 import DateTime from '@/components/DateTime.vue'
+import TargetFilter from '@/models/TargetFilter'
 
-const state = reactive({
-  distributions: [] as Distribution[]
+const state = reactive<{
+  targetFilters: TargetFilter[]
+}>({
+  targetFilters: []
 })
 
 onMounted(async () => {
-  state.distributions = await Distribution.getAll()
+  state.targetFilters = await TargetFilter.getAll()
 })
 
 const router = useRouter()
 
-const onNewDistributionClicked = () => {
-  router.push('/distributions/new')
+const onNewTargetClicked = () => {
+  router.push('/target-filters/new')
 }
 
-const onDistributionClicked = (distribution: Distribution) => {
-  router.push(`/distributions/${distribution.id}/edit`)
+const onTargetFilterClicked = (targetFilter: TargetFilter) => {
+  router.push(`/target-filters/${targetFilter.id}/edit`)
 }
 </script>

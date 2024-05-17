@@ -126,7 +126,7 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import PrimaryButton from '@/components/PrimaryButton.vue'
 import PageSkeleton from '@/components/PageSkeleton.vue'
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
@@ -149,6 +149,8 @@ import PublicIcon from '@/icons/PublicIcon.vue'
 import PrivateIcon from '@/icons/PrivateIcon.vue'
 
 const route = useRoute()
+const router = useRouter()
+const emitter = useEmitter()
 
 const props = defineProps({
   backRouteName: { type: String, required: true }
@@ -181,8 +183,6 @@ onMounted(async () => {
   }
 })
 
-const emitter = useEmitter()
-
 onMounted(async () => {
   emitter.on('uploadAreaFilesSelected', onUploadAreaFilesSelected)
   emitter.on('artifactCardDeleteClicked', onArtifactCardDeleteClicked)
@@ -206,6 +206,7 @@ const onArtifactCardDeleteClicked = async (event: ArtifactCardDeleteClicked) => 
 const onSaveClicked = async () => {
   if (await state.module.validate()) {
     await state.module.save()
+    await router.push({ name: props.backRouteName })
   }
 }
 

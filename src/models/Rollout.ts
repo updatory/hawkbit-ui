@@ -152,6 +152,8 @@ export default class Rollout extends AbstractModel {
     const requiredMessage = 'Required'
 
     this.nameError = undefined
+    this.targetFilterError = undefined
+    this.distributionError = undefined
 
     if (isBlank(this.name)) {
       this.nameError = requiredMessage
@@ -178,17 +180,16 @@ export default class Rollout extends AbstractModel {
       throw new Error('Rollout is not valid')
     }
 
-    const body = JSON.stringify([
-      {
-        name: this.name,
-        type: this.type,
-        description: this.description,
-        startAt: this.startAt,
-        forceTime: this.forceTime,
-        targetFilter: this.targetFilter!.query,
-        distribution: this.distribution!.id
-      }
-    ])
+    const body = JSON.stringify({
+      name: this.name,
+      type: this.type,
+      description: this.description,
+      startAt: this.startAt,
+      forceTime: this.forceTime,
+      targetFilterQuery: this.targetFilter!.query,
+      distributionSetId: this.distribution!.id,
+      amountGroups: 1
+    })
 
     const response = await fetch('/rest/v1/rollouts', {
       method: 'POST',
@@ -204,7 +205,7 @@ export default class Rollout extends AbstractModel {
 
     const results = await response.json()
 
-    this.id = results[0].id
+    this.id = results.id
     this.isNew = false
   }
 

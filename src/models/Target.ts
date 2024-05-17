@@ -3,29 +3,28 @@ import type { Ref } from 'vue'
 import type { Optional } from '@/utils/Types'
 import { shallowRef } from 'vue'
 import { notifyUpdateRef } from '@/utils/notifyUpdateRef'
+import { randomString } from '@/utils/Strings'
 
 export default class Target extends AbstractModel {
   private readonly _name: Ref<Optional<string>>
   private readonly _description: Ref<Optional<string>>
-  private readonly _controllerId: Ref<Optional<string>>
   private readonly _securityToken: Ref<Optional<string>>
   private readonly _createdAt: Ref<Optional<number>>
 
+  private readonly _idError: Ref<Optional<string>>
   private readonly _nameError: Ref<Optional<string>>
-  private readonly _controllerIdError: Ref<Optional<string>>
+  private readonly _securityTokenError: Ref<Optional<string>>
 
   constructor({
     id,
     name,
     description,
-    controllerId,
     securityToken,
     createdAt
   }: {
     id?: string
     name?: string
     description?: string
-    controllerId?: string
     securityToken?: string
     createdAt?: number
   }) {
@@ -35,12 +34,12 @@ export default class Target extends AbstractModel {
 
     this._name = notifyUpdateRef(name, onUpdate)
     this._description = notifyUpdateRef(description, onUpdate)
-    this._controllerId = notifyUpdateRef(controllerId, onUpdate)
     this._securityToken = notifyUpdateRef(securityToken, onUpdate)
     this._createdAt = shallowRef(createdAt)
 
+    this._idError = shallowRef(undefined)
     this._nameError = shallowRef(undefined)
-    this._controllerIdError = shallowRef(undefined)
+    this._securityTokenError = shallowRef(undefined)
   }
 
   get name(): Optional<string> {
@@ -57,14 +56,6 @@ export default class Target extends AbstractModel {
 
   set description(value: string) {
     this._description.value = value
-  }
-
-  get controllerId(): Optional<string> {
-    return this._controllerId.value
-  }
-
-  set controllerId(value: string) {
-    this._controllerId.value = value
   }
 
   get securityToken(): Optional<string> {
@@ -91,29 +82,28 @@ export default class Target extends AbstractModel {
     this._nameError.value = value
   }
 
-  get controllerIdError(): Optional<string> {
-    return this._controllerIdError.value
+  get idError(): Optional<string> {
+    return this._idError.value
   }
 
-  private set controllerIdError(value: Optional<string>) {
-    this._controllerIdError.value = value
+  private set idError(value: Optional<string>) {
+    this._idError.value = value
   }
 
-  generateControllerId(): void {
-    this.controllerId = window.crypto.randomUUID()
+  get securityTokenError(): Optional<string> {
+    return this._securityTokenError.value
+  }
+
+  private set securityTokenError(value: Optional<string>) {
+    this._securityTokenError.value = value
+  }
+
+  generateId(): void {
+    this.id = randomString(40)
   }
 
   generateSecurityToken(): void {
-    const tokenLength = 40
-
-    const dec2hex = (dec: number) => {
-      return dec.toString(16).padStart(2, '0')
-    }
-
-    const bytes = new Uint8Array(tokenLength / 2)
-    window.crypto.getRandomValues(bytes)
-
-    this.securityToken = Array.from(bytes, dec2hex).join('')
+    this.securityToken = randomString(40)
   }
 
   async validate(): Promise<boolean> {
@@ -121,13 +111,20 @@ export default class Target extends AbstractModel {
 
     const requiredMessage = 'Required'
 
+    this.nameError = undefined
+    this.idError = undefined
+    this.securityTokenError = undefined
+
     if (!this.name) {
       this.nameError = requiredMessage
       isValid = false
     }
-
-    if (!this.controllerId) {
-      this.controllerIdError = requiredMessage
+    if (!this.id) {
+      this.idError = requiredMessage
+      isValid = false
+    }
+    if (!this.securityToken) {
+      this.securityTokenError = requiredMessage
       isValid = false
     }
 
@@ -151,12 +148,14 @@ export default class Target extends AbstractModel {
   }
 
   private async create(): Promise<void> {
-    const body = JSON.stringify({
-      name: this.name,
-      description: this.description,
-      controllerId: this.controllerId,
-      securityToken: this.securityToken
-    })
+    const body = JSON.stringify([
+      {
+        name: this.name,
+        description: this.description,
+        controllerId: this.id,
+        securityToken: this.securityToken
+      }
+    ])
 
     const response = await fetch('/rest/v1/targets', {
       method: 'POST',
@@ -166,13 +165,13 @@ export default class Target extends AbstractModel {
       body
     })
 
-    if (response.status !== 200) {
+    if (response.status !== 200 && response.status !== 201) {
       throw new Error('Failed to create target')
     }
 
-    const data = await response.json()
+    const result = await response.json()
 
-    this.id = data.id
+    this.id = result.controllerId
     this.isNew = false
   }
 
@@ -180,7 +179,7 @@ export default class Target extends AbstractModel {
     const body = JSON.stringify({
       name: this.name,
       description: this.description,
-      controllerId: this.controllerId,
+      controllerId: this.id,
       securityToken: this.securityToken
     })
 
@@ -225,10 +224,9 @@ export default class Target extends AbstractModel {
     const result = await response.json()
 
     return new Target({
-      id: result.id,
+      id: result.controllerId,
       name: result.name,
       description: result.description,
-      controllerId: result.controllerId,
       securityToken: result.securityToken,
       createdAt: result.createdAt
     })
@@ -246,10 +244,9 @@ export default class Target extends AbstractModel {
     return results.map(
       (result: any) =>
         new Target({
-          id: result.id,
+          id: result.controllerId,
           name: result.name,
           description: result.description,
-          controllerId: result.controllerId,
           securityToken: result.securityToken,
           createdAt: result.createdAt
         })

@@ -2,12 +2,11 @@
   <div>
     <div class="relative">
       <input
-        v-model="model"
         :id="inputId"
         :disabled="props.disabled"
-        :readonly="props.readonly"
+        @change="onChange($event)"
         placeholder=""
-        type="text"
+        type="date"
         :class="{
           'border-red-500': hasError,
           'focus:border-red-500': hasError,
@@ -32,7 +31,7 @@
 import { kebabCase } from '@/utils/Strings'
 import { computed } from 'vue'
 
-const model = defineModel<string | undefined>({
+const model = defineModel<number | undefined>({
   required: true
 })
 
@@ -40,9 +39,13 @@ const props = defineProps({
   label: { type: String, required: true },
   error: { type: String, required: false },
   required: { type: Boolean, required: false, default: false },
-  disabled: { type: Boolean, required: false, default: false },
-  readonly: { type: Boolean, required: false, default: false }
+  disabled: { type: Boolean, required: false, default: false }
 })
+
+const onChange = (event: Event) => {
+  const input = event.target as HTMLInputElement
+  model.value = input.valueAsDate?.getTime() || undefined
+}
 
 const inputId = computed(() => kebabCase(props.label))
 
