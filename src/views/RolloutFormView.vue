@@ -42,7 +42,7 @@
 
               <TargetFilterCard
                 v-if="state.rollout.targetFilter"
-                :target-filter="state.rollout.targetFilter"
+                :target-filter="state.rollout.targetFilter as TargetFilter"
                 class="h-20"
               >
                 <template #actions>
@@ -75,7 +75,7 @@
 
               <DistributionCard
                 v-if="state.rollout.distribution"
-                :distribution="state.rollout.distribution"
+                :distribution="state.rollout.distribution as Distribution"
                 class="h-20"
               >
                 <template #actions>
@@ -124,13 +124,13 @@
       <div class="flex flex-col space-y-2">
         <DistributionCard
           :distribution="distribution"
-          v-for="distribution in state.distributions"
+          v-for="distribution in state.distributions as Distribution[]"
           :key="distribution.instanceId"
         >
           <template #actions>
             <SecondaryLinkButton
               label="Select"
-              @click.stop="onDistributionSelected(distribution as Distribution)"
+              @click.stop="onDistributionSelected(distribution)"
             />
           </template>
         </DistributionCard>
@@ -146,13 +146,13 @@
       <div class="flex flex-col space-y-2">
         <TargetFilterCard
           :target-filter="targetFilter"
-          v-for="targetFilter in state.targetFilters"
+          v-for="targetFilter in state.targetFilters as TargetFilter[]"
           :key="targetFilter.instanceId"
         >
           <template #actions>
             <SecondaryLinkButton
               label="Select"
-              @click.stop="onTargetFilterSelected(targetFilter as TargetFilter)"
+              @click.stop="onTargetFilterSelected(targetFilter)"
             />
           </template>
         </TargetFilterCard>
@@ -253,21 +253,4 @@ const onTargetFilterSelected = (targetFilter: TargetFilter) => {
 const onTargetFilterDeleted = () => {
   state.rollout.targetFilter = undefined
 }
-
-// const onAddModuleClicked = () => {
-//   state.showSelectModuleModal = true
-// }
-//
-// const onSelectModuleModalClosed = () => {
-//   state.showSelectModuleModal = false
-// }
-//
-// const onModuleAdded = (module: Module) => {
-//   state.distribution.addModule(module)
-//   state.showSelectModuleModal = false
-// }
-//
-// const onModuleRemoved = (module: Module) => {
-//   state.distribution.removeModule(module)
-// }
 </script>

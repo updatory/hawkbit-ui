@@ -39,11 +39,14 @@
             </DataTableHeaderRow>
           </template>
           <template #body>
-            <template v-for="distribution in state.distributions" :key="distribution.instanceId">
-              <DataTableBodyRow @click="onDistributionClicked(distribution as Distribution)">
+            <template
+              v-for="distribution in state.distributions as Distribution[]"
+              :key="distribution.instanceId"
+            >
+              <DataTableBodyRow @click="onDistributionClicked(distribution)">
                 <DataTableBodyCell>{{ distribution.name }}</DataTableBodyCell>
                 <DataTableBodyCell>{{ distribution.version }}</DataTableBodyCell>
-                <DataTableBodyCell><DateTime :value="distribution.createdAt" /></DataTableBodyCell>
+                <DataTableBodyCell><DateTime :value="distribution.createdAt!" /></DataTableBodyCell>
               </DataTableBodyRow>
             </template>
           </template>

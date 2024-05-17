@@ -37,15 +37,12 @@
 
             <div
               class="sm:col-span-3 space-y-2"
-              v-for="module in state.distribution.modules"
+              v-for="module in state.distribution.modules as Module[]"
               :key="module.instanceId"
             >
               <ModuleCard :module="module" class="h-20">
                 <template #actions>
-                  <SecondaryLinkButton
-                    label="Delete"
-                    @click.stop="onModuleRemoved(module as Module)"
-                  />
+                  <SecondaryLinkButton label="Delete" @click.stop="onModuleRemoved(module)" />
                 </template>
               </ModuleCard>
             </div>
@@ -86,7 +83,11 @@
   >
     <template #content>
       <div class="flex flex-col space-y-2">
-        <ModuleCard :module="module" v-for="module in state.modules" :key="module.instanceId">
+        <ModuleCard
+          :module="module"
+          v-for="module in state.modules as Module[]"
+          :key="module.instanceId"
+        >
           <template #actions>
             <SecondaryLinkButton label="Select" @click.stop="onModuleAdded(module as Module)" />
           </template>
